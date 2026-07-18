@@ -1,0 +1,26 @@
+# HyprSequoia Walker profile. Providers are supplied by Elephant packages.
+theme = "default"
+as_window = false
+click_to_close = true
+selection_wrap = true
+hide_action_hints = false
+
+[placeholders]
+default = { input = "Search apps or type a prefix", list = "No results" }
+
+[providers]
+default = ["desktopapplications", "calc"]
+empty = ["desktopapplications"]
+max_results = 40
+
+[[providers.prefixes]]
+prefix = "/"
+provider = "files"
+
+[[providers.prefixes]]
+prefix = "="
+provider = "calc"
+
+[[providers.prefixes]]
+prefix = ":"
+provider = "clipboard"

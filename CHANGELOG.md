@@ -1,0 +1,20 @@
+# Changelog
+
+All notable changes follow Keep a Changelog and Semantic Versioning.
+
+## [Unreleased]
+
+### Added
+
+- Original modular Hyprland session foundation.
+- Transactional interactive Arch installer with profiles and logs.
+- Managed backup, restore, update, and conservative Plasma migration tools.
+- Waybar menu bar, Walker launcher, SwayNC notifications, Hyprlock, Hypridle,
+  Hyprpaper, Kitty, screenshots, media keys, and Chinese input profile.
+- CI linting, contributor templates, architecture and operations documentation.
+
+## [0.1.0] - 2026-07-19
+
+### Added
+
+- Initial public foundation.

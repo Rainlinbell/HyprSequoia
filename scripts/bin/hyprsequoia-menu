@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Apple-menu-inspired session command palette.
+set -Eeuo pipefail
+choice=$(printf 'About HyprSequoia\nSystem Settings\nLock Screen\nLog Out\nRestart\nShut Down' | walker --dmenu 2>/dev/null || true)
+case $choice in
+  'About HyprSequoia') notify-send 'HyprSequoia' 'A modular Hyprland desktop experience' ;;
+  'System Settings') command -v systemsettings >/dev/null && systemsettings || notify-send 'HyprSequoia' 'Use the menu-bar controls for network, Bluetooth, and sound.' ;;
+  'Lock Screen') loginctl lock-session ;;
+  'Log Out') hyprctl dispatch exit ;;
+  'Restart') systemctl reboot ;;
+  'Shut Down') systemctl poweroff ;;
+esac

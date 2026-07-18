@@ -1,0 +1,19 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install linters
+        run: sudo apt-get update && sudo apt-get install -y shellcheck jq
+      - name: ShellCheck
+        run: shellcheck install.sh update.sh restore.sh uninstall-kde.sh scripts/lib/*.sh scripts/bin/*
+      - name: Validate JSON
+        run: find . -type f -name '*.json' -print0 | xargs -0 -n1 jq empty
+      - name: Reject trailing whitespace
+        run: '! grep -RInE "[[:blank:]]+$" --exclude-dir=.git .'

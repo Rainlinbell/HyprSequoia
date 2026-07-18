@@ -1,0 +1,15 @@
+{
+  "layer": "top", "position": "top", "height": 34, "spacing": 6,
+  "modules-left": ["custom/apple", "hyprland/window", "hyprland/workspaces"],
+  "modules-center": ["clock"],
+  "modules-right": ["network", "bluetooth", "pulseaudio", "battery", "custom/notifications"],
+  "custom/apple": {"format": "", "tooltip": false, "on-click": "hyprsequoia-menu"},
+  "hyprland/window": {"format": "{}", "max-length": 42, "separate-outputs": true},
+  "hyprland/workspaces": {"format": "{icon}", "format-icons": {"active": "●", "default": "○"}, "persistent-workspaces": {"*": 4}},
+  "clock": {"format": "{:%a %b %d  %H:%M}", "tooltip-format": "<tt>{calendar}</tt>"},
+  "network": {"format-wifi": "  {signalStrength}%", "format-ethernet": "󰈀", "format-disconnected": "󰖪", "on-click": "nm-connection-editor"},
+  "bluetooth": {"format": "", "format-disabled": "󰂲", "on-click": "blueman-manager"},
+  "pulseaudio": {"format": "{icon} {volume}%", "format-muted": "󰝟", "format-icons": ["", "", ""], "on-click": "pavucontrol"},
+  "battery": {"format": "{icon} {capacity}%", "format-charging": "󰂄 {capacity}%", "format-icons": ["󰁺", "󰁻", "󰁽", "󰁿", "󰂁", "󰁹"]},
+  "custom/notifications": {"format": "", "tooltip": false, "on-click": "swaync-client -t -sw"}
+}

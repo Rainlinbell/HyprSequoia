@@ -6,6 +6,7 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ### Added
 
+- Chinese-first GitHub README with an English language switch and expanded usage instructions.
 - Original modular Hyprland session foundation.
 - Transactional interactive Arch installer with profiles and logs.
 - Managed backup, restore, update, and conservative Plasma migration tools.

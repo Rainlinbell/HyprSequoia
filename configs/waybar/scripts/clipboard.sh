@@ -5,7 +5,7 @@ set -Eeuo pipefail
 source "$(dirname -- "$0")/common.sh"
 if [[ ${1:-status} == menu ]]; then
   command -v cliphist >/dev/null 2>&1 || { notify 'Clipboard History' 'Install cliphist to enable history.'; exit 0; }
-  choice=$(cliphist list | walker --dmenu --prompt 'Clipboard' 2>/dev/null || true)
+  choice=$(cliphist list | walker --dmenu -p 'Clipboard' 2>/dev/null || true)
   [[ -n $choice ]] && printf '%s' "$choice" | cliphist decode | wl-copy
   exit 0
 fi

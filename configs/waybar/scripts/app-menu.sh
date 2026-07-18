@@ -11,10 +11,10 @@ case $menu in
   Window) entries=('Close Window' 'Focus Left' 'Focus Right' 'Focus Up' 'Focus Down');;
   *) entries=('Open Troubleshooting Guide' 'Open Project Homepage' 'About HyprSequoia');;
 esac
-choice=$(printf '%s\n' "${entries[@]}" | walker --dmenu --prompt "$menu" 2>/dev/null || true)
+choice=$(printf '%s\n' "${entries[@]}" | walker --dmenu -p "$menu" 2>/dev/null || true)
 case $choice in
-  'Open File Manager') thunar >/dev/null 2>&1 &;;
-  'New Terminal') kitty >/dev/null 2>&1 &;;
+  'Open File Manager') thunar >/dev/null 2>&1 & ;;
+  'New Terminal') kitty >/dev/null 2>&1 & ;;
   'Region Screenshot') ~/.config/waybar/scripts/screenshot.sh region;;
   'Full Screenshot') ~/.config/waybar/scripts/screenshot.sh screen;;
   'Clipboard History') ~/.config/waybar/scripts/clipboard.sh menu;;
@@ -27,7 +27,7 @@ case $choice in
   'Focus Right') hyprctl dispatch movefocus r;;
   'Focus Up') hyprctl dispatch movefocus u;;
   'Focus Down') hyprctl dispatch movefocus d;;
-  'Open Troubleshooting Guide') xdg-open 'https://github.com/Rainlinbell/HyprSequoia/blob/main/docs/TROUBLESHOOTING.md' >/dev/null 2>&1 &;;
-  'Open Project Homepage') xdg-open 'https://github.com/Rainlinbell/HyprSequoia' >/dev/null 2>&1 &;;
+  'Open Troubleshooting Guide') xdg-open 'https://github.com/Rainlinbell/HyprSequoia/blob/main/docs/TROUBLESHOOTING.md' >/dev/null 2>&1 & ;;
+  'Open Project Homepage') xdg-open 'https://github.com/Rainlinbell/HyprSequoia' >/dev/null 2>&1 & ;;
   'About HyprSequoia') notify 'HyprSequoia' 'A modular macOS-inspired Hyprland desktop.';;
 esac

@@ -3,7 +3,7 @@
 set -Eeuo pipefail
 # shellcheck source=common.sh
 source "$(dirname -- "$0")/common.sh"
-choice=$(printf '%s\n' 'About HyprSequoia' 'System Settings' 'Lock Screen' 'Sleep' 'Restart' 'Shutdown' 'Logout' | walker --dmenu --prompt 'HyprSequoia' 2>/dev/null || true)
+choice=$(printf '%s\n' 'About HyprSequoia' 'System Settings' 'Lock Screen' 'Sleep' 'Restart' 'Shutdown' 'Logout' | walker --dmenu -p 'HyprSequoia' 2>/dev/null || true)
 case $choice in
   'About HyprSequoia') notify 'HyprSequoia' 'A modular macOS-inspired Hyprland desktop.' ;;
   'System Settings')

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=HyprSequoia
+Comment=HyprSequoia desktop session (standard Hyprland startup)
+Exec=start-hyprland
+TryExec=start-hyprland
+Type=Application
+DesktopNames=Hyprland

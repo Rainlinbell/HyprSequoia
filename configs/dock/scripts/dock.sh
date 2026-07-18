@@ -9,6 +9,16 @@ mkdir -p "$log_dir" "$DOCK_RUNTIME_DIR"
 
 running() { [[ -r $DOCK_PID_FILE ]] && kill -0 "$(<"$DOCK_PID_FILE")" 2>/dev/null; }
 
+current_backend() {
+  local backend
+  if [[ -r $DOCK_BACKEND_FILE ]]; then
+    IFS= read -r backend <"$DOCK_BACKEND_FILE" || true
+    printf '%s\n' "${backend:-waybar}"
+  else
+    printf '%s\n' waybar
+  fi
+}
+
 # Return the Rust backend only when its feature-bearing CLI is present.
 native_binary() {
   local candidate help path
@@ -69,7 +79,8 @@ start_backend() {
   running && exit 0
   sync_initial_pins
   sync_fallback_order
-  local log="$log_dir/dock-$(date +%Y%m%d-%H%M%S).log" pid native backend
+  local log pid native backend
+  log="$log_dir/dock-$(date +%Y%m%d-%H%M%S).log"
   if native=$(native_binary); then
     "$native" --config "$config_dir/nwg-dock-config.toml" -d -i 48 --mb 10 --hide-timeout 400 --opacity 78 --launch-animation -s "$config_dir/nwg-style.css" -c "$config_dir/scripts/launch.sh menu" >>"$log" 2>&1 &
     pid=$!
@@ -112,21 +123,21 @@ case ${1:-start} in
   restart) stop_backend; sleep 0.2; start_backend;;
   toggle)
     if running; then
-      backend=$(<"$DOCK_BACKEND_FILE" 2>/dev/null || printf 'waybar')
+      backend=$(current_backend)
       if [[ $backend == rust ]]; then pkill -RTMIN+1 -x nwg-dock
       elif [[ $backend == go ]]; then pkill -RTMIN+1 -x nwg-dock-hyprland
       else kill -SIGUSR1 "$(<"$DOCK_PID_FILE")"; fi
     else start_backend; fi;;
   show)
     if running; then
-      backend=$(<"$DOCK_BACKEND_FILE" 2>/dev/null || printf 'waybar')
+      backend=$(current_backend)
       if [[ $backend == rust ]]; then pkill -RTMIN+2 -x nwg-dock
       elif [[ $backend == go ]]; then pkill -RTMIN+2 -x nwg-dock-hyprland
       else kill -SIGUSR2 "$(<"$DOCK_PID_FILE")"; fi
     fi;;
   hide)
     if running; then
-      backend=$(<"$DOCK_BACKEND_FILE" 2>/dev/null || printf 'waybar')
+      backend=$(current_backend)
       if [[ $backend == rust ]]; then pkill -RTMIN+3 -x nwg-dock
       elif [[ $backend == go ]]; then pkill -RTMIN+3 -x nwg-dock-hyprland
       else kill -SIGUSR1 "$(<"$DOCK_PID_FILE")"; fi

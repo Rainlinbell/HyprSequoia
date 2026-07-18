@@ -3,9 +3,10 @@
 | Module | Purpose | Runtime dependency |
 |---|---|---|
 | Hyprland | Composition, input, animation, bindings | `hyprland` |
+| SDDM session | Named `start-hyprland` login entry | `sddm` |
 | Waybar | Sequoia-style menu bar and status controls | `waybar`, `networkmanager`, `bluetoothctl` |
 | Dock | Bottom-centered application dock with native/fallback backends | `nwg-dock` (optional), `waybar` |
-| Walker | Spotlight-style search | `walker-bin` |
+| Walker | Spotlight-style apps/files/calc/clipboard/symbol search | `walker-bin`, `elephant` providers |
 | SwayNC | Notifications and media panel | `swaync` |
 | Hyprlock / Hypridle | Lock and idle policy | `hyprlock`, `hypridle` |
 | Hyprpaper | Project wallpaper | `hyprpaper` |
@@ -14,6 +15,14 @@
 
 Each module can be stopped or replaced independently. Remove its `exec-once`
 line and corresponding application directory; avoid editing unrelated modules.
+
+## Spotlight customization
+
+Walker uses `configs/walker/config.toml` and the original
+`configs/walker/themes/sequoia/` GTK theme. `hyprsequoia-session` keeps the
+Walker GApplication service warm after starting Elephant. Provider prefixes,
+keyboard bindings, recent files, Settings search, and quick actions are
+documented in [SPOTLIGHT.md](SPOTLIGHT.md).
 
 ## Menu bar customization
 

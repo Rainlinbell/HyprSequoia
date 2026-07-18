@@ -41,7 +41,14 @@ fi
 
 spawn NetworkManager nm-applet --indicator
 spawn Bluetooth blueman-applet
-spawn Walker elephant
+spawn Elephant elephant
+
+if [[ -x "$HOME/.config/walker/scripts/spotlight-service.sh" ]]; then
+    printf '[HyprSequoia] start %-17s\n' 'Spotlight service'
+    "$HOME/.config/walker/scripts/spotlight-service.sh" &
+else
+    spawn Spotlight walker --gapplication-service
+fi
 
 if has_command wl-paste && has_command cliphist; then
     printf '[HyprSequoia] start %-17s\n' 'Clipboard text'

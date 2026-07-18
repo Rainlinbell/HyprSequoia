@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Collect non-secret diagnostics after an SDDM/Hyprland login loop.
+# Collect bounded diagnostics after an SDDM/Hyprland login loop. Reports can
+# contain usernames, device IDs, and application messages; review before sharing.
 set -u
 export PATH="$HOME/.local/bin:$PATH"
 
@@ -16,24 +17,72 @@ if command -v Hyprland >/dev/null 2>&1; then Hyprland --version 2>&1 || true
 elif command -v hyprland >/dev/null 2>&1; then hyprland --version 2>&1 || true
 else printf '%s\n' 'Hyprland: not found'; fi
 if command -v pacman >/dev/null 2>&1; then
-    pacman -Q hyprland aquamarine hyprutils hyprlang hyprgraphics hyprland-guiutils 2>/dev/null || true
+    pacman -Q hyprland sddm uwsm aquamarine hyprutils hyprlang hyprgraphics \
+        hyprland-guiutils nvidia-open-dkms nvidia-dkms nvidia-open nvidia \
+        nvidia-utils egl-wayland 2>/dev/null || true
 fi
-if command -v start-hyprland >/dev/null 2>&1; then
-    printf 'start-hyprland: %s\n' "$(command -v start-hyprland)"
+for command_name in start-hyprland uwsm; do
+    if command -v "$command_name" >/dev/null 2>&1; then
+        printf '%s: %s\n' "$command_name" "$(command -v "$command_name")"
+    else
+        printf '%s: not found\n' "$command_name"
+    fi
+done
+
+printf '\n%s\n' '== Session selection and SDDM configuration =='
+for session_dir in /usr/local/share/wayland-sessions /usr/share/wayland-sessions; do
+    for session_file in "$session_dir"/hypr*.desktop; do
+        [[ -r $session_file ]] || continue
+        printf -- '--- %s\n' "$session_file"
+        sed -n -E '/^(Name|Exec|TryExec|DesktopNames)=/p' "$session_file" || true
+    done
+done
+if [[ -r /var/lib/sddm/state.conf ]]; then
+    printf -- '--- %s\n' /var/lib/sddm/state.conf
+    sed -n -E '/^[[:space:]]*(LastSession|Session)[[:space:]]*=/p' /var/lib/sddm/state.conf || true
+else
+    printf '%s\n' '/var/lib/sddm/state.conf is not readable by this user.'
 fi
+for sddm_config in /usr/lib/sddm/sddm.conf.d/*.conf /etc/sddm.conf.d/*.conf /etc/sddm.conf; do
+    [[ -r $sddm_config ]] || continue
+    grep -HnE '^[[:space:]]*(DisplayServer|CompositorCommand|SessionDir)[[:space:]]*=' \
+        "$sddm_config" 2>/dev/null || true
+done
+
+printf '\n%s\n' '== Relevant environment and config files =='
+printf 'XDG_CONFIG_HOME=%s\n' "${XDG_CONFIG_HOME:-<unset>}"
+printf 'HYPRLAND_CONFIG=%s\n' "${HYPRLAND_CONFIG:-<unset>}"
+printf 'AQ_DRM_DEVICES=%s\n' "${AQ_DRM_DEVICES:-<unset>}"
+printf 'AQ_FORCE_LINEAR_BLIT=%s\n' "${AQ_FORCE_LINEAR_BLIT:-<unset>}"
+printf 'GBM_BACKEND=%s\n' "${GBM_BACKEND:-<unset>}"
+config="${HYPRLAND_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprland.conf}"
+printf 'Resolved config: %s\n' "$config"
+for candidate in "$HOME/.config/hypr/hyprland.conf" "$HOME/.config/hypr/hyprland.lua" \
+    "$(dirname -- "$config")/hyprland.conf" "$(dirname -- "$config")/hyprland.lua"; do
+    [[ -e $candidate ]] && ls -l -- "$candidate"
+done
 
 printf '\n%s\n' '== GPU and kernel driver =='
 if command -v lspci >/dev/null 2>&1; then
     lspci -nnk 2>/dev/null | sed -n '/VGA compatible controller\|3D controller\|Display controller/,+3p' || true
 else printf '%s\n' 'lspci: not installed'; fi
-if [[ -r /sys/module/nvidia_drm/parameters/modeset ]]; then
-    printf 'nvidia_drm.modeset=%s\n' "$(< /sys/module/nvidia_drm/parameters/modeset)"
-fi
+grep -H . /sys/module/nvidia_drm/parameters/modeset \
+    /sys/module/nvidia_drm/parameters/fbdev 2>/dev/null || true
+if command -v dkms >/dev/null 2>&1; then dkms status 2>&1 || true; fi
+if command -v modinfo >/dev/null 2>&1; then modinfo -F version nvidia 2>&1 || true; fi
+ls -l /dev/dri/by-path 2>/dev/null || true
 
 printf '\n%s\n' '== Config verification =='
-config="$HOME/.config/hypr/hyprland.conf"
-if [[ -r $config ]] && command -v Hyprland >/dev/null 2>&1; then
-    Hyprland --config "$config" --verify-config 2>&1 || true
+hypr_bin=''
+if command -v Hyprland >/dev/null 2>&1; then hypr_bin=Hyprland
+elif command -v hyprland >/dev/null 2>&1; then hypr_bin=hyprland; fi
+if [[ -r $config && -n $hypr_bin ]]; then
+    help=$("$hypr_bin" --help 2>&1 || true)
+    if [[ $help == *--verify-config* ]]; then
+        "$hypr_bin" --config "$config" --verify-config 2>&1 || true
+    else
+        printf '%s\n' "$hypr_bin has no --verify-config support."
+    fi
 else printf '%s\n' "Cannot verify $config from this host."; fi
 
 printf '\n%s\n' '== SDDM and user journal (tail) =='
@@ -41,6 +90,13 @@ if command -v journalctl >/dev/null 2>&1; then
     journalctl -b -u sddm --no-pager -n 120 2>&1 || true
     journalctl --user -b --no-pager -n 160 2>&1 || true
 fi
+printf '\n%s\n' '== SDDM per-user session logs =='
+for session_log in "$HOME/.local/share/sddm/wayland-session.log" \
+    "$HOME/.local/share/sddm/xorg-session.log"; do
+    [[ -r $session_log ]] || continue
+    printf -- '--- %s (tail)\n' "$session_log"
+    tail -n 200 "$session_log" || true
+done
 if command -v coredumpctl >/dev/null 2>&1; then
     printf '\n%s\n' '== Recent Hyprland coredumps =='
     coredumpctl list --no-pager --reverse Hyprland 2>&1 | head -n 10 || true

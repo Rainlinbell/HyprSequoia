@@ -1,17 +1,62 @@
-# HyprSequoia Walker profile. Providers are supplied by Elephant packages.
-theme = "default"
+# HyprSequoia Spotlight profile for Walker + Elephant.
+# The compositor binds SUPER+SPACE to `walker`; the Walker service is started
+# once per session so opening the palette is immediate.
+theme = "sequoia"
 as_window = false
+force_keyboard_focus = true
+close_when_open = true
 click_to_close = true
+single_click_activation = true
 selection_wrap = true
+disable_mouse = true
 hide_action_hints = false
+hide_action_hints_dmenu = true
+resume_last_query = false
+exact_search_prefix = "'"
+global_argument_delimiter = "#"
+debug = false
+
+[shell]
+# Keep the layer-shell surface centered; Hyprland supplies the blur and fade.
+layer = "overlay"
+exclusive_zone = -1
+anchor_top = true
+anchor_bottom = true
+anchor_left = true
+anchor_right = true
 
 [placeholders]
-default = { input = "Search apps or type a prefix", list = "No results" }
+default = { input = "Search apps, files, settings…", list = "No matches" }
+desktopapplications = { input = "Search applications", list = "No applications" }
+files = { input = "Search files", list = "No files found" }
+calc = { input = "Calculate, convert units or currency", list = "Enter an expression" }
+clipboard = { input = "Search clipboard history", list = "Clipboard is empty" }
+symbols = { input = "Search symbols", list = "No symbols found" }
+
+[keybinds]
+close = ["Escape"]
+next = ["Down", "ctrl j"]
+previous = ["Up", "ctrl k"]
+left = ["Left"]
+right = ["Right"]
+show_actions = ["alt j"]
+toggle_exact = ["ctrl e"]
+resume_last_query = ["ctrl r"]
+quick_activate = ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8"]
 
 [providers]
-default = ["desktopapplications", "calc"]
+# Elephant ranks frequently used and currently open applications higher.
+default = ["desktopapplications", "calc", "files", "clipboard", "symbols", "unicode"]
 empty = ["desktopapplications"]
-max_results = 40
+max_results = 50
+
+[providers.max_results_provider]
+desktopapplications = 24
+files = 28
+calc = 12
+clipboard = 24
+unicode = 24
+symbols = 24
 
 [[providers.prefixes]]
 prefix = "/"
@@ -24,3 +69,28 @@ provider = "calc"
 [[providers.prefixes]]
 prefix = ":"
 provider = "clipboard"
+
+[[providers.prefixes]]
+prefix = ","
+provider = "symbols"
+
+[[providers.prefixes]]
+prefix = "."
+provider = "unicode"
+
+[[providers.prefixes]]
+prefix = ";"
+provider = "providerlist"
+
+[providers.sets]
+[providers.sets.apps]
+default = ["desktopapplications"]
+empty = ["desktopapplications"]
+
+[providers.sets.files]
+default = ["files"]
+empty = ["files"]
+
+[providers.sets.calculator]
+default = ["calc"]
+empty = ["calc"]

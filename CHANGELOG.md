@@ -6,6 +6,15 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ### Added
 
+- Sequoia-style Walker Spotlight with a centered blurred theme, preview pane,
+  warm service startup, keyboard navigation, ranked multi-provider search,
+  recent files, Settings search, and quick actions.
+- Targeted Elephant providers for applications, files, calculations,
+  unit/currency conversion, clipboard history, emoji/symbols, and Unicode.
+- Explicit, consent-based `yay-bin` bootstrap when required AUR packages are
+  requested and neither `yay` nor `paru` is installed.
+- A named SDDM `HyprSequoia` session that always uses `start-hyprland`, plus
+  SDDM version/backend and unavailable-UWSM validation.
 - Native-first Sequoia Dock wrapper with Rust `nwg-dock`, Go fallback, and
   Waybar fallback configurations.
 - Dock launchers, running indicators, recent applications, Trash, favorites
@@ -39,6 +48,8 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
   upgrades that could leave Hyprland libraries ABI-incompatible.
 - Added pre-login Hyprland/JSON validation, transactional rollback, Lua-config
   precedence handling, and a bounded TTY diagnostic collector.
+- Expanded login-loop diagnostics with SDDM session selection, per-user logs,
+  config overrides, DKMS state, and stable DRM device paths.
 - Removed the obsolete Hyprlock `general:grace` option.
 
 ## [0.1.0] - 2026-07-19

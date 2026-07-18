@@ -18,6 +18,10 @@ if command -v hyprctl >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
   # shellcheck disable=SC2016
   count=$(jq --arg pattern "$pattern" '[.[] | select((.class // "" | ascii_downcase | test($pattern)))] | length' <<<"$clients" 2>/dev/null || printf '0')
   active=$(hyprctl activewindow -j 2>/dev/null | jq -r '.class // ""' 2>/dev/null || true)
-  [[ $active =~ $pattern ]] && class=active || { ((count > 0)) && class=running || true; }
+  if [[ $active =~ $pattern ]]; then
+    class=active
+  elif ((count > 0)); then
+    class=running
+  fi
 fi
 status_json "$icon" "$label — $count running" "$class"

@@ -20,8 +20,9 @@ monitor and device overrides are never lost.
 4. Back up only component trees the project manages.
 5. Deploy files and record each path in the installation manifest.
 6. Verify the active Hyprland and JSON configurations without starting a session.
-7. Enable required system services.
-8. Commit; on an earlier failure, restore the configuration snapshot.
+7. Validate the SDDM/login stack and enable required system services.
+8. Install the local `start-hyprland` session entry.
+9. Commit; on an earlier failure, restore the configuration snapshot.
 
 Package installation itself is not rolled back: removing newly installed shared
 packages could break unrelated applications. Configuration rollback is bounded
@@ -34,6 +35,12 @@ environment. The helper launches each optional service independently and writes
 one timestamped session log. A missing or crashing bar, wallpaper provider,
 notification daemon, clipboard watcher, or Dock therefore cannot terminate the
 compositor or hide the cause of a partial startup.
+
+Spotlight follows the same isolation boundary. Elephant owns provider data,
+while Walker stays warm as a GTK GApplication service and is activated by the
+`Super+Space` binding. Recent-file, Settings, and quick-action pickers are
+bounded scripts that reuse Walker's dmenu mode instead of adding resident
+indexers or another launcher.
 
 ## Dock backends
 

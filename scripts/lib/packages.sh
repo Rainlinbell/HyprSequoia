@@ -1,10 +1,48 @@
 #!/usr/bin/env bash
 # Package profiles and package-management helpers.
 
-readonly -a HS_CORE_PACKAGES=(hyprland waybar kitty walker-bin swaync hyprpaper hyprlock hypridle networkmanager bluez bluez-utils pipewire wireplumber pipewire-pulse xdg-desktop-portal-hyprland xdg-desktop-portal-gtk grim slurp wl-clipboard cliphist gammastep jq brightnessctl playerctl polkit-gnome qt5-wayland qt6-wayland noto-fonts noto-fonts-emoji ttf-jetbrains-mono-nerd bibata-cursor-theme imagemagick pciutils)
+readonly -a HS_CORE_PACKAGES=(hyprland sddm waybar kitty walker-bin swaync hyprpaper hyprlock hypridle networkmanager bluez bluez-utils pipewire wireplumber pipewire-pulse xdg-desktop-portal-hyprland xdg-desktop-portal-gtk grim slurp wl-clipboard cliphist gammastep jq brightnessctl playerctl polkit-gnome qt5-wayland qt6-wayland noto-fonts noto-fonts-emoji ttf-jetbrains-mono-nerd bibata-cursor-theme imagemagick pciutils)
 readonly -a HS_FULL_PACKAGES=(thunar thunar-archive-plugin file-roller pavucontrol network-manager-applet blueman jq)
 readonly -a HS_CN_PACKAGES=(fcitx5-im fcitx5-rime fcitx5-configtool noto-fonts-cjk)
+readonly -a HS_SPOTLIGHT_CORE_PACKAGES=(elephant elephant-desktopapplications elephant-calc)
+readonly -a HS_SPOTLIGHT_EXTRA_PACKAGES=(elephant-files elephant-clipboard elephant-symbols elephant-unicode elephant-providerlist)
 HS_NVIDIA_EXTRA=()
+
+# Return the first supported AUR helper already available to the user.
+find_aur_helper() {
+  local helper
+  for helper in yay paru; do
+    if has "$helper"; then
+      printf '%s\n' "$helper"
+      return 0
+    fi
+  done
+  return 1
+}
+
+# Bootstrap yay-bin only after explicit confirmation. AUR PKGBUILDs are
+# third-party code, so the installer prints the source and never downloads or
+# executes one silently.
+offer_aur_helper_install() {
+  local answer build_dir
+  printf '\nRequired packages are available only from the AUR.\n' >&2
+  printf 'HyprSequoia can build yay-bin from https://aur.archlinux.org/yay-bin.git\n' >&2
+  read -r -p 'Install yay-bin now? [y/N] ' answer || answer=n
+  [[ $answer =~ ^[Yy]$ ]] || return 1
+
+  as_root pacman -S --needed --noconfirm base-devel git
+  build_dir=$(mktemp -d "${TMPDIR:-/tmp}/hyprsequoia-yay.XXXXXX")
+  if ! git clone --depth 1 https://aur.archlinux.org/yay-bin.git "$build_dir"; then
+    rm -rf -- "$build_dir"
+    die "Could not clone yay-bin from the AUR. Check the network connection and retry."
+  fi
+  if ! (cd "$build_dir" && makepkg -si --needed --noconfirm); then
+    rm -rf -- "$build_dir"
+    die "yay-bin installation failed. Review the makepkg output before retrying."
+  fi
+  rm -rf -- "$build_dir"
+  has yay || die "yay-bin completed, but the yay command is not available in PATH."
+}
 
 # Select an NVIDIA kernel module package without guessing the GPU generation.
 # An installed driver is always respected. For a new setup, current NVIDIA
@@ -60,7 +98,7 @@ add_nvidia_headers() {
 
 # Install official packages in a single idempotent transaction.
 install_packages() {
-  local -a packages=("${HS_CORE_PACKAGES[@]}")
+  local -a packages=("${HS_CORE_PACKAGES[@]}" "${HS_SPOTLIGHT_CORE_PACKAGES[@]}" "${HS_SPOTLIGHT_EXTRA_PACKAGES[@]}")
   [[ $HS_PROFILE == full ]] && packages+=("${HS_FULL_PACKAGES[@]}")
   [[ $HS_CHINESE == 1 ]] && packages+=("${HS_CN_PACKAGES[@]}")
   case $HS_GPU in
@@ -97,8 +135,13 @@ install_packages() {
   # can create an ABI mismatch and an immediate SDDM login loop.
   ((${#official[@]})) && as_root pacman -Syu --needed --noconfirm "${official[@]}"
   if ((${#aur[@]})); then
-    has yay || die "Packages ${aur[*]} require yay. Install yay, then run the installer again."
-    yay -S --needed --noconfirm "${aur[@]}"
+    local helper=''
+    helper=$(find_aur_helper || true)
+    if [[ -z $helper ]]; then
+      offer_aur_helper_install || die "AUR packages are required: ${aur[*]}. Install yay or paru, then rerun the installer."
+      helper=yay
+    fi
+    "$helper" -S --needed --noconfirm "${aur[@]}"
   fi
 }
 

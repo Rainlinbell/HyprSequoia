@@ -10,6 +10,8 @@ source "$ROOT/scripts/lib/packages.sh"
 
 HS_PROFILE=full HS_CHINESE=0 HS_GPU=auto HS_REMOVE_KDE=0 COMMITTED=0 BACKUP="" DISABLED_LUA=""
 HS_HAS_NVIDIA=0 HS_HAS_AMD=0 HS_HAS_INTEL=0
+HS_SDDM_SESSION="/usr/local/share/wayland-sessions/hyprsequoia.desktop"
+SDDM_DISPLAY_SERVER=x11 SDDM_DISPLAY_SOURCE="built-in default"
 
 # Restore the backup made by this run after an unexpected failure.
 rollback() {
@@ -35,26 +37,24 @@ validate_hyprland_config() {
   elif has hyprland; then
     hypr_bin=hyprland
   else
-    warn "Hyprland is not in PATH; skipping config verification."
-    return 0
+    die "Hyprland is not in PATH after package deployment; refusing to install an unverified login session."
   fi
   # Do not pipe --help into grep -q: with pipefail, grep's early exit can send
   # SIGPIPE to Hyprland and make a supported build look unsupported.
   help=$("$hypr_bin" --help 2>&1 || true)
   if [[ $help != *--verify-config* ]]; then
-    warn "This Hyprland build has no --verify-config; skipping static validation."
-    return 0
+    die "This Hyprland build has no --verify-config support. Complete a full Arch upgrade, then retry."
   fi
   verify_log="$HS_LOG_DIR/hyprland-verify-$(date +%Y%m%d-%H%M%S).log"
   set +e
   "$hypr_bin" --config "$config" --verify-config >"$verify_log" 2>&1
   rc=$?
   set -e
-  # Hyprland 0.55.0 had a known verify-only crash; do not roll back a valid
-  # install solely because of that upstream bug, but preserve the log.
+  # A verifier crash cannot prove that the login configuration is safe. Keep
+  # the log and fail closed so SDDM never receives an unverified session.
   if ((rc == 139)); then
-    warn "Hyprland --verify-config crashed (upstream verify-only bug); inspect $verify_log before logging in."
-    return 0
+    warn "Hyprland --verify-config crashed; inspect $verify_log."
+    die "Configuration verification crashed. Upgrade Hyprland and retry; restoring the previous configuration."
   fi
   if ((rc != 0)); then
     warn "Hyprland rejected the deployed configuration."
@@ -146,6 +146,28 @@ detect_session() {
   fi
 }
 
+# HyprSequoia currently owns ~/.config paths in its compositor, Waybar, Dock,
+# and helper configurations. Stop before changing the system if Hyprland would
+# load a different XDG/config override than the file the installer validates.
+require_managed_config_path() {
+  local expected_home expected_config requested
+  expected_home=$(realpath -m -- "$HOME/.config")
+  expected_config=$(realpath -m -- "$HOME/.config/hypr/hyprland.conf")
+  if [[ -n ${XDG_CONFIG_HOME:-} ]]; then
+    requested=$(realpath -m -- "$XDG_CONFIG_HOME")
+    if [[ $requested != "$expected_home" ]]; then
+      die "XDG_CONFIG_HOME points to $requested, but HyprSequoia currently manages $expected_home. Unset the override before installing."
+    fi
+  fi
+  if [[ -n ${HYPRLAND_CONFIG:-} ]]; then
+    requested=${HYPRLAND_CONFIG/#\~/$HOME}
+    requested=$(realpath -m -- "$requested")
+    if [[ $requested != "$expected_config" ]]; then
+      die "HYPRLAND_CONFIG points to $requested, but the managed login config is $expected_config. Unset the override before installing."
+    fi
+  fi
+}
+
 # NVIDIA needs a kernel module with DRM modesetting before a Wayland session
 # can present a framebuffer. Recent Arch drivers enable this by default, but
 # report the state when the installer is run so a TTY user gets an actionable
@@ -164,6 +186,135 @@ report_gpu_requirements() {
     warn "nvidia_drm is not loaded yet. Verify DRM modesetting after reboot with: cat /sys/module/nvidia_drm/parameters/modeset"
   fi
   warn "NVIDIA DKMS requires matching kernel headers; the installer adds headers for standard Arch kernels when available."
+}
+
+# Verify a selected DKMS driver after pacman hooks have run. A package can be
+# present while its module build failed; allowing login in that state produces
+# the same immediate black-screen return as a compositor crash.
+validate_nvidia_postinstall() {
+  [[ $HS_GPU == nvidia ]] || return 0
+  local installed_packages needs_dkms=0 status=''
+  installed_packages=$(pacman -Qq 2>/dev/null || true)
+  if grep -Eq '^nvidia(-open)?(-[0-9]+xx)?-dkms$' <<<"$installed_packages"; then
+    needs_dkms=1
+  fi
+  if ((needs_dkms)); then
+    has dkms || die "An NVIDIA DKMS package is installed, but the dkms command is unavailable."
+    status=$(dkms status 2>&1 || true)
+    if ! grep -Eqi '^nvidia/.*[,:][[:space:]].*installed' <<<"$status"; then
+      warn "NVIDIA DKMS did not report an installed module:"
+      printf '%s\n' "$status" >&2
+      die "NVIDIA module build failed. Install matching kernel headers and repair DKMS before logging in."
+    fi
+    info "NVIDIA DKMS module build verified."
+  fi
+  if [[ -r /sys/module/nvidia_drm/parameters/modeset ]]; then
+    local modeset
+    modeset=$(< /sys/module/nvidia_drm/parameters/modeset)
+    if [[ $modeset != Y && $modeset != y && $modeset != 1 ]]; then
+      warn "The currently loaded nvidia_drm module still has modeset=$modeset. Enable modeset and reboot before selecting HyprSequoia."
+    fi
+  else
+    warn "The NVIDIA DRM module is not loaded in this boot; reboot is required before the first HyprSequoia login."
+  fi
+}
+
+# Read SDDM's effective greeter backend using its documented configuration
+# precedence. This setting controls the greeter only; it does not decide
+# whether the selected desktop session itself is Wayland or X11.
+read_sddm_display_server() {
+  local file value
+  local -a files=()
+  for file in /usr/lib/sddm/sddm.conf.d/*.conf; do [[ -f $file ]] && files+=("$file"); done
+  for file in /etc/sddm.conf.d/*.conf; do [[ -f $file ]] && files+=("$file"); done
+  [[ -f /etc/sddm.conf ]] && files+=(/etc/sddm.conf)
+  SDDM_DISPLAY_SERVER=x11
+  SDDM_DISPLAY_SOURCE="built-in default"
+  for file in "${files[@]}"; do
+    [[ -r $file ]] || continue
+    value=$(awk '
+      /^[[:space:]]*[#;]/ { next }
+      /^[[:space:]]*\[/ {
+        general = ($0 ~ /^[[:space:]]*\[General\][[:space:]]*$/)
+        next
+      }
+      general && /^[[:space:]]*DisplayServer[[:space:]]*=/ {
+        value = $0
+        sub(/^[^=]*=/, "", value)
+        sub(/[[:space:]]*[#;].*$/, "", value)
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+        if (value != "") last = value
+      }
+      END { if (last != "") print last }
+    ' "$file")
+    if [[ -n $value ]]; then
+      SDDM_DISPLAY_SERVER=$value
+      SDDM_DISPLAY_SOURCE=$file
+    fi
+  done
+}
+
+# Install a clearly named, non-UWSM login entry. Current Arch packages also
+# expose an optional UWSM entry even when uwsm itself is absent, which makes it
+# easy for a new user to select a session that immediately exits to SDDM.
+install_sddm_session() {
+  local source="$ROOT/configs/sddm/hyprsequoia.desktop"
+  has start-hyprland || die "The installed Hyprland package has no start-hyprland wrapper. Complete a full Arch upgrade, then retry."
+  [[ -r $source ]] || die "Missing SDDM session template: $source"
+  as_root install -Dm644 "$source" "$HS_SDDM_SESSION"
+  info "Installed the standard Hyprland session entry: $HS_SDDM_SESSION"
+}
+
+# Refuse a known-incompatible login stack and explain non-fatal SDDM choices
+# that commonly look like a compositor crash.
+validate_login_stack() {
+  local version plain_entry=/usr/share/wayland-sessions/hyprland.desktop exec_line=''
+  version=$(pacman -Q sddm 2>/dev/null | awk '{print $2}' || true)
+  [[ -n $version ]] || die "SDDM is not installed after package deployment."
+  if has vercmp && (($(vercmp "$version" 0.20.0) < 0)); then
+    die "SDDM $version is too old; Hyprland requires SDDM 0.20.0 or newer."
+  fi
+  info "SDDM version check passed ($version)."
+
+  if [[ -r $plain_entry ]]; then
+    exec_line=$(awk -F= '$1 == "Exec" { sub(/^[^=]*=/, ""); print; exit }' "$plain_entry")
+    if [[ $exec_line != *start-hyprland* ]]; then
+      warn "$plain_entry does not launch start-hyprland (Exec=$exec_line)."
+      warn "Use the HyprSequoia session installed by this installer or reinstall the Arch hyprland package."
+    fi
+  else
+    warn "The packaged plain Hyprland SDDM entry is missing; use the HyprSequoia session entry."
+  fi
+  if [[ -r /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] && ! has uwsm; then
+    warn "SDDM also lists 'Hyprland (uwsm-managed)', but uwsm is not installed. Do not select that entry."
+  fi
+
+  read_sddm_display_server
+  if [[ ${SDDM_DISPLAY_SERVER,,} == wayland ]]; then
+    warn "SDDM is forced to the experimental Wayland greeter by $SDDM_DISPLAY_SOURCE."
+    warn "If login still returns to SDDM, test the default DisplayServer=x11 backend; see docs/TROUBLESHOOTING.md."
+  else
+    info "SDDM greeter backend: $SDDM_DISPLAY_SERVER ($SDDM_DISPLAY_SOURCE)."
+  fi
+}
+
+# Enable SDDM for a clean Arch installation without replacing another display
+# manager that the user deliberately enabled. Do not start it from inside the
+# installer because doing so could terminate the current graphical session.
+enable_display_manager() {
+  local link=/etc/systemd/system/display-manager.service target=''
+  if [[ -e $link || -L $link ]]; then
+    target=$(readlink -f -- "$link" 2>/dev/null || true)
+    if [[ $target == */sddm.service ]]; then
+      info "SDDM is already the enabled display manager."
+    else
+      warn "Keeping the existing display manager: ${target:-$link}"
+      warn "The HyprSequoia session is available from any manager that scans standard Wayland session directories."
+    fi
+    return 0
+  fi
+  as_root systemctl enable sddm.service
+  info "Enabled SDDM for the next boot."
 }
 
 # Back up only configuration trees managed by HyprSequoia.
@@ -195,8 +346,8 @@ deploy() {
   if [[ -r $BACKUP/config/dock/favorites.list ]]; then
     install -Dm644 "$BACKUP/config/dock/favorites.list" "$HOME/.config/dock/favorites.list"
   fi
-  # Waybar's custom modules are executable entry points, unlike ordinary CSS/JSON files.
-  for script_dir in "$HOME/.config/waybar/scripts" "$HOME/.config/dock/scripts"; do
+  # Runtime shell entry points need execute bits; CSS, JSON, TOML, and XML stay data-only.
+  for script_dir in "$HOME/.config/waybar/scripts" "$HOME/.config/dock/scripts" "$HOME/.config/walker/scripts"; do
     if [[ -d $script_dir ]]; then
       while IFS= read -r -d '' script; do chmod 755 "$script"; done < <(find "$script_dir" -type f -name '*.sh' -print0)
     fi
@@ -243,16 +394,20 @@ EOF
 main() {
   require_user; require_arch; init_state; choose_profile; detect_session; detect_gpu
   exec > >(tee -a "$HS_LOG_DIR/install-$(date +%Y%m%d-%H%M%S).log") 2>&1
+  require_managed_config_path
   report_gpu_requirements
   info "Installing $HS_PROFILE profile."
-  install_packages; backup_config; disable_preexisting_lua_config; deploy
-  validate_hyprland_config; validate_json_configs; enable_services
+  install_packages; validate_nvidia_postinstall
+  backup_config; disable_preexisting_lua_config; deploy
+  validate_hyprland_config; validate_json_configs
+  validate_login_stack; enable_services; enable_display_manager
   [[ $HS_REMOVE_KDE == 1 ]] && "$ROOT/uninstall-kde.sh"
+  install_sddm_session
   COMMITTED=1
   if [[ $HS_GPU == nvidia ]]; then
-    info "Installation complete. Reboot to load the NVIDIA module, then select Hyprland in SDDM."
+    info "Installation complete. Reboot to load the NVIDIA module, then select HyprSequoia in SDDM (not the UWSM-managed entry)."
   else
-    info "Installation complete. Log out, select Hyprland in SDDM, and sign in."
+    info "Installation complete. Log out, select HyprSequoia in SDDM (not the UWSM-managed entry), and sign in."
   fi
 }
 main "$@"

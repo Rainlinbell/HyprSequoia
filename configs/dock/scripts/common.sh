@@ -7,11 +7,14 @@ set -Eeuo pipefail
 readonly DOCK_CONFIG_DIR="$HOME/.config/dock"
 readonly DOCK_STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/hyprsequoia/dock"
 readonly DOCK_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}"
-readonly DOCK_PID_FILE="$DOCK_RUNTIME_DIR/hyprsequoia-dock.pid"
-readonly DOCK_WATCHER_PID_FILE="$DOCK_RUNTIME_DIR/hyprsequoia-dock-autohide.pid"
-readonly DOCK_BACKEND_FILE="$DOCK_RUNTIME_DIR/hyprsequoia-dock-backend"
-readonly DOCK_HISTORY="$DOCK_STATE_DIR/recent"
-readonly DOCK_FAVORITES="$DOCK_CONFIG_DIR/favorites.list"
+# These constants are consumed by the scripts that source this library.
+# shellcheck disable=SC2034
+readonly \
+  DOCK_PID_FILE="$DOCK_RUNTIME_DIR/hyprsequoia-dock.pid" \
+  DOCK_WATCHER_PID_FILE="$DOCK_RUNTIME_DIR/hyprsequoia-dock-autohide.pid" \
+  DOCK_BACKEND_FILE="$DOCK_RUNTIME_DIR/hyprsequoia-dock-backend" \
+  DOCK_HISTORY="$DOCK_STATE_DIR/recent" \
+  DOCK_FAVORITES="$DOCK_CONFIG_DIR/favorites.list"
 
 # Escape a shell value for a Waybar JSON response.
 json_escape() {

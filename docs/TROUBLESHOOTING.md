@@ -1,5 +1,30 @@
 # Troubleshooting
 
+## Installer stops at AUR packages
+
+`walker-bin`, some Elephant providers, and `bibata-cursor-theme` may come from
+the AUR. On an older checkout the installer stops with a message that they
+"require yay". Update the checkout and rerun it:
+
+```bash
+git pull --ff-only
+./install.sh
+```
+
+The current installer accepts an existing `yay` or `paru`. If neither exists,
+it prints the `yay-bin` AUR source and asks for explicit confirmation before
+installing `base-devel`, cloning the PKGBUILD, and running `makepkg`. Declining
+does not deploy or replace user configuration.
+
+To install the helper manually instead:
+
+```bash
+sudo pacman -S --needed base-devel git
+git clone https://aur.archlinux.org/yay-bin.git
+cd yay-bin
+makepkg -si
+```
+
 ## Session returns to SDDM
 
 Switch to a TTY with `Ctrl+Alt+F3` and sign in as the same non-root user. Do not
@@ -33,6 +58,17 @@ start-hyprland
 Use `start-hyprland`, not the compositor binary directly. Hyprland 0.53 added
 this wrapper for crash recovery and safe mode. The Arch package's SDDM entry
 normally uses it already.
+
+The installer adds `/usr/local/share/wayland-sessions/hyprsequoia.desktop` so
+SDDM shows a distinct **HyprSequoia** entry that always invokes
+`start-hyprland`. Do not select **Hyprland (uwsm-managed)** unless `uwsm` is
+installed. Inspect the available choices with:
+
+```bash
+grep -R -E '^(Name|Exec|TryExec)=' \
+  /usr/local/share/wayland-sessions/hypr*.desktop \
+  /usr/share/wayland-sessions/hypr*.desktop 2>/dev/null
+```
 
 HyprSequoia targets current Arch Hyprland and uses the 0.53+ `windowrule`,
 `layerrule`, and `gesture` syntax. The installer now verifies the deployed

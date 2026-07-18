@@ -16,7 +16,7 @@ HyprSequoia is a maintainable desktop distribution layer—not a collection of p
 
 - Modular Hyprland configuration with separate input, appearance, rules, bindings, and autostart modules
 - macOS-inspired menu bar with workspaces, network, Bluetooth, volume, battery, clock, and notifications
-- Walker search for applications, files, calculations, and clipboard history
+- Sequoia-style Spotlight for apps, files, calculations, unit/currency conversion, clipboard, emoji, recents, settings, and quick actions
 - SwayNC notifications and media controls
 - Bottom Sequoia Dock with auto-hide, running indicators, favorites, recents, and multi-monitor support
 - Hyprlock blurred lock screen and Hypridle automatic locking
@@ -35,7 +35,7 @@ Use an updated Arch Linux installation and confirm that:
 - Your user can run administrative commands with `sudo`.
 - The machine has a working internet connection.
 - Git is installed: `sudo pacman -S --needed git`.
-- If Walker is only available through the AUR, install `yay` beforehand. HyprSequoia never silently downloads an AUR helper script.
+- Walker and some theme components come from the AUR. You may install `yay` or `paru` beforehand; if neither exists, the installer explicitly offers to build `yay-bin` and does nothing when consent is declined.
 
 Update and reboot before installation when practical:
 
@@ -71,7 +71,7 @@ The installer first performs Arch's required full-system upgrade with `pacman -S
 After installation:
 
 1. Log out of the current session.
-2. Select **Hyprland** from the session menu on the SDDM login screen.
+2. Select **HyprSequoia** from the SDDM session menu (do not select the UWSM-managed entry when `uwsm` is absent).
 3. Sign in with your existing account.
 4. Press `Super` + `Space` to test Walker, then test the network, Bluetooth, volume, and notification items in the menu bar.
 
@@ -82,6 +82,9 @@ KDE is not removed by default. Keep it as a fallback until HyprSequoia meets you
 | Action | Shortcut |
 |---|---|
 | Spotlight / application search | `Super` + `Space` |
+| Spotlight recent files | `Super` + `Shift` + `Space` |
+| Spotlight Settings search | `Super` + `Shift` + `S` |
+| Spotlight quick actions | `Super` + `Shift` + `A` |
 | Terminal | `Super` + `Enter` |
 | File manager | `Super` + `E` |
 | Lock screen | `Super` + `L` |
@@ -125,6 +128,16 @@ Logs, backups, and the installation manifest are stored in:
 
 See the [lifecycle documentation](docs/LIFECYCLE.md) for details.
 
+### Spotlight
+
+Press `Super+Space` for the centered Walker Spotlight. Use `/` for files, `=`
+for calculations and unit/currency conversion, `:` for clipboard history, `,`
+for emoji and symbols, `.` for Unicode, and `;` to switch providers. Walker is
+kept warm as a session service and Elephant supplies history-aware ranking. A
+installer adds only the targeted providers used by these features, not the
+catch-all provider bundle. See the [Spotlight documentation](docs/SPOTLIGHT.md)
+for theming, keyboard operation, and troubleshooting.
+
 ### Dock
 
 The Dock starts automatically with the Hyprland session. When the Rust
@@ -136,6 +149,7 @@ documentation](docs/DOCK.md).
 ## Architecture
 
 - `configs/hypr/conf.d/`: independently owned compositor modules
+- `configs/sddm/`: HyprSequoia session entry backed by `start-hyprland`
 - `configs/{waybar,kitty,walker,swaync}/`: desktop application configuration
 - `configs/dock/`: native-first bottom Dock and Waybar fallback configuration
 - `scripts/lib/`: shared installer and package primitives
@@ -157,7 +171,7 @@ git pull --ff-only
 ./install.sh
 ```
 
-This release migrates window, layer, and gesture rules to Hyprland 0.53+ syntax, adds an output-agnostic monitor fallback, and runs `Hyprland --verify-config` before installation can complete. NVIDIA users must reboot after driver installation before selecting Hyprland in SDDM.
+This release migrates window, layer, and gesture rules to Hyprland 0.53+ syntax, adds an output-agnostic monitor fallback, and runs `Hyprland --verify-config` before installation can complete. It also installs a clearly named **HyprSequoia** SDDM entry that invokes `start-hyprland` and warns against selecting an unavailable UWSM-managed session. NVIDIA users must reboot after driver installation.
 
 If SDDM still returns, run from the TTY:
 
@@ -202,7 +216,11 @@ Yes, and this is the recommended migration path. Plasma removal runs only when e
 
 **Why might yay be required?**
 
-Walker may require the AUR. The installer checks current official repositories first and invokes an existing `yay` only when necessary; it never bootstraps an AUR helper silently.
+Walker, Elephant providers, and some theme components may require the AUR. The
+installer checks official repositories first and prefers an existing `yay` or
+`paru`. If neither exists, it prints the `yay-bin` AUR source and asks for
+confirmation; only an explicit `y` installs `base-devel`, clones the PKGBUILD,
+and runs `makepkg`.
 
 ## Roadmap and versioning
 

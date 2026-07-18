@@ -14,9 +14,9 @@ for i in "${!apps[@]}"; do [[ ${apps[$i]} == "$selected" ]] && index=$i; done
 ((index >= 0)) || exit 0
 case $action in
   'Move Up')
-    if ((index > 0)); then tmp=${apps[$index-1]}; apps[$index-1]=${apps[$index]}; apps[$index]=$tmp; fi;;
+    if ((index > 0)); then tmp=${apps[index - 1]}; apps[index - 1]=${apps[index]}; apps[index]=$tmp; fi;;
   'Move Down')
-    if ((index < ${#apps[@]} - 1)); then tmp=${apps[$index+1]}; apps[$index+1]=${apps[$index]}; apps[$index]=$tmp; fi;;
+    if ((index < ${#apps[@]} - 1)); then tmp=${apps[index + 1]}; apps[index + 1]=${apps[index]}; apps[index]=$tmp; fi;;
   'Remove from Favorites') unset 'apps[index]';;
   *) exit 0;;
 esac

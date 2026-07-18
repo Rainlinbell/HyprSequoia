@@ -12,10 +12,12 @@ jobs:
       - name: Install linters
         run: sudo apt-get update && sudo apt-get install -y shellcheck jq
       - name: ShellCheck
-        run: shellcheck -x install.sh update.sh restore.sh uninstall-kde.sh scripts/lib/*.sh scripts/bin/* configs/waybar/scripts/*.sh
+        run: shellcheck -x install.sh update.sh restore.sh uninstall-kde.sh scripts/lib/*.sh scripts/bin/* configs/waybar/scripts/*.sh configs/dock/scripts/*.sh
       - name: Validate JSON
         run: find . -type f -name '*.json' -print0 | xargs -0 -n1 jq empty
       - name: Validate Waybar JSONC
         run: jq empty configs/waybar/config.jsonc
+      - name: Validate Dock TOML
+        run: python -c 'import tomllib, pathlib; tomllib.loads(pathlib.Path("configs/dock/nwg-dock-config.toml").read_text())'
       - name: Reject trailing whitespace
         run: '! grep -RInE "[[:blank:]]+$" --exclude-dir=.git .'

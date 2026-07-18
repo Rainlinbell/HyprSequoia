@@ -15,7 +15,7 @@ rollback() {
   local status=$?
   if ((status != 0)) && [[ $COMMITTED == 0 && -n $BACKUP && -d $BACKUP/config ]]; then
     warn "Installation failed; restoring the configuration backup."
-    rm -rf -- "$HOME/.config/hypr" "$HOME/.config/waybar" "$HOME/.config/kitty" "$HOME/.config/walker" "$HOME/.config/swaync"
+    rm -rf -- "$HOME/.config/hypr" "$HOME/.config/waybar" "$HOME/.config/kitty" "$HOME/.config/walker" "$HOME/.config/swaync" "$HOME/.config/dock"
     cp -a "$BACKUP/config/." "$HOME/.config/"
   fi
   exit "$status"
@@ -58,7 +58,7 @@ backup_config() {
   BACKUP="$HS_BACKUP_DIR/$(date +%Y%m%d-%H%M%S)"
   mkdir -p "$BACKUP/config"
   local item
-  for item in hypr waybar kitty walker swaync; do
+  for item in hypr waybar kitty walker swaync dock; do
     [[ -e $HOME/.config/$item ]] && cp -a "$HOME/.config/$item" "$BACKUP/config/"
   done
   printf '%s\n' "$BACKUP" >"$HS_STATE_HOME/latest-backup"
@@ -68,13 +68,19 @@ backup_config() {
 deploy() {
   : >"$HS_MANIFEST"
   local component
-  for component in hypr waybar kitty walker swaync; do
+  for component in hypr waybar kitty walker swaync dock; do
     install_tree "$ROOT/configs/$component" "$HOME/.config/$component"
   done
-  # Waybar's custom modules are executable entry points, unlike ordinary CSS/JSON files.
-  if [[ -d $HOME/.config/waybar/scripts ]]; then
-    while IFS= read -r -d '' script; do chmod 755 "$script"; done < <(find "$HOME/.config/waybar/scripts" -type f -name '*.sh' -print0)
+  # Preserve a user's reordered Dock favorites across updates and reinstalls.
+  if [[ -r $BACKUP/config/dock/favorites.list ]]; then
+    install -Dm644 "$BACKUP/config/dock/favorites.list" "$HOME/.config/dock/favorites.list"
   fi
+  # Waybar's custom modules are executable entry points, unlike ordinary CSS/JSON files.
+  for script_dir in "$HOME/.config/waybar/scripts" "$HOME/.config/dock/scripts"; do
+    if [[ -d $script_dir ]]; then
+      while IFS= read -r -d '' script; do chmod 755 "$script"; done < <(find "$script_dir" -type f -name '*.sh' -print0)
+    fi
+  done
   install_tree "$ROOT/themes" "$HOME/.local/share/hyprsequoia/themes"
   local script
   for script in "$ROOT/scripts/bin/"*; do

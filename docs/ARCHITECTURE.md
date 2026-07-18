@@ -25,6 +25,15 @@ Package installation itself is not rolled back: removing newly installed shared
 packages could break unrelated applications. Configuration rollback is bounded
 and deterministic.
 
+## Dock backends
+
+The Dock is isolated under `configs/dock` and launched by its lifecycle wrapper.
+The wrapper feature-detects the Rust `nwg-dock` CLI, then the Hyprland-specific Go
+backend, and finally starts a Waybar-only fallback. This keeps the base install
+usable without compiling Rust while allowing users to opt into the complete
+native interaction model later. Backend state, recent applications, and pins
+are kept outside the repository in XDG state/cache locations.
+
 ## Security boundaries
 
 The installer runs as the user and elevates only package/service operations.

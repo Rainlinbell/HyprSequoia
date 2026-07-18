@@ -1,0 +1,12 @@
+/* Native nwg-dock-hyprland backend. GTK selectors are intentionally broad so
+ * minor upstream selector changes do not make the dock unusable. */
+* { font-family: "SF Pro Display", "SF Pro Text", Inter, sans-serif; font-size: 13px; }
+window { background: transparent; }
+box, #dock, .dock { background: rgba(24, 25, 31, 0.84); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 22px; box-shadow: 0 12px 34px rgba(0, 0, 0, 0.4); padding: 7px 10px 8px; }
+#box { background: rgba(24, 25, 31, 0.84); border-radius: 22px; }
+button { background: transparent; border: none; border-radius: 14px; padding: 4px 6px; color: #f5f5f7; transition-property: background-color, padding; transition-duration: 160ms; }
+button:hover { background: rgba(255, 255, 255, 0.14); padding: 0 10px; }
+button:checked, button.active, button:focus { background: rgba(138, 180, 248, 0.19); box-shadow: inset 0 -3px #8ab4f8; }
+#active { background: rgba(138, 180, 248, 0.19); box-shadow: inset 0 -3px #8ab4f8; border-radius: 14px; }
+button image { -gtk-icon-transform: scale(1); }
+button:hover image { -gtk-icon-transform: scale(1.25); }

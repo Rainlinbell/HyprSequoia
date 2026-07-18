@@ -6,6 +6,10 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ### Added
 
+- Native-first Sequoia Dock wrapper with Rust `nwg-dock`, Go fallback, and
+  Waybar fallback configurations.
+- Dock launchers, running indicators, recent applications, Trash, favorites
+  reorder support, auto-hide watcher, themes, and lifecycle documentation.
 - Sequoia-style multi-monitor Waybar menu bar with Apple/app menus, window title,
   clipboard, keyboard layout, network, Bluetooth, VPN, brightness, audio,
   microphone, battery, calendar, clock, notifications, and Control Center.

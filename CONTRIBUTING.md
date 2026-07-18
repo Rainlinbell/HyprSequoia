@@ -8,7 +8,7 @@ from another dotfiles repository.
 ## Development checks
 
 ```bash
-shellcheck -x install.sh update.sh restore.sh uninstall-kde.sh scripts/lib/*.sh scripts/bin/* configs/waybar/scripts/*.sh
+shellcheck -x install.sh update.sh restore.sh uninstall-kde.sh scripts/lib/*.sh scripts/bin/* configs/waybar/scripts/*.sh configs/dock/scripts/*.sh
 find . -name '*.json' -print0 | xargs -0 -n1 jq empty
 ```
 

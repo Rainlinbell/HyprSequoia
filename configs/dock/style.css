@@ -1,0 +1,30 @@
+@import "theme.css";
+
+/* Waybar fallback dock. Hyprland's layer blur rule supplies the glass effect. */
+* {
+  border: none;
+  border-radius: 0;
+  font-family: "SF Pro Display", "SF Pro Text", Inter, "Noto Sans CJK SC", sans-serif;
+  font-size: 13px;
+  min-height: 0;
+}
+window#waybar.hyprsequoia-dock { background: transparent; color: @dock_text; }
+window#waybar.hyprsequoia-dock > box { background: @dock_surface; border: 1px solid @dock_border; border-radius: 22px; box-shadow: 0 12px 34px @dock_shadow; padding: 7px 10px 8px; }
+#custom-finder, #custom-firefox, #custom-code, #custom-terminal, #custom-files, #custom-settings, #custom-recent, #taskbar, #custom-trash, #custom-launcher { margin: 0 2px; padding: 0 5px; transition-property: background-color, padding, color; transition-duration: 160ms; }
+#custom-finder, #custom-firefox, #custom-code, #custom-terminal, #custom-files, #custom-settings, #custom-recent, #custom-trash, #custom-launcher { color: @dock_icon; font-size: 35px; min-width: 48px; }
+#custom-finder:hover, #custom-firefox:hover, #custom-code:hover, #custom-terminal:hover, #custom-files:hover, #custom-settings:hover, #custom-recent:hover, #custom-trash:hover, #custom-launcher:hover { background: @dock_hover; border-radius: 14px; color: @dock_icon_active; padding: 0 9px; }
+#custom-finder.launching, #custom-firefox.launching, #custom-code.launching, #custom-terminal.launching, #custom-files.launching, #custom-settings.launching { animation-name: dock-bounce; animation-duration: 520ms; animation-timing-function: ease-out; animation-iteration-count: 1; }
+@keyframes dock-bounce { 0% { margin-top: 0; } 40% { margin-top: -12px; } 70% { margin-top: 4px; } 100% { margin-top: 0; } }
+#custom-finder.running, #custom-firefox.running, #custom-code.running, #custom-terminal.running, #custom-files.running, #custom-settings.running { border-bottom: 3px solid @dock_indicator; }
+#custom-finder.active, #custom-firefox.active, #custom-code.active, #custom-terminal.active, #custom-files.active, #custom-settings.active { background: @dock_active; border-radius: 14px; color: @dock_icon_active; }
+#custom-recent { color: @dock_muted; font-size: 24px; min-width: 34px; }
+#custom-trash { color: @dock_muted; font-size: 31px; min-width: 42px; }
+#custom-launcher { color: @dock_accent; font-size: 31px; min-width: 42px; }
+#taskbar { margin: 0 6px; padding: 0 4px; border-left: 1px solid @dock_border; }
+#taskbar button { background: transparent; border-radius: 14px; margin: 0 2px; padding: 3px 5px; transition-property: background-color, padding; transition-duration: 160ms; }
+#taskbar button:hover { background: @dock_hover; padding: 0 9px; }
+#taskbar button.active { background: @dock_active; box-shadow: inset 0 -3px @dock_indicator; }
+#taskbar button.urgent { animation-name: dock-bounce; animation-duration: 520ms; animation-iteration-count: infinite; }
+#taskbar button image { -gtk-icon-transform: scale(1); transition-property: -gtk-icon-transform; transition-duration: 160ms; }
+#taskbar button:hover image { -gtk-icon-transform: scale(1.25); }
+tooltip { background: @dock_tooltip; border: 1px solid @dock_border; border-radius: 10px; color: @dock_text; padding: 6px 9px; }

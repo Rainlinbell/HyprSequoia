@@ -4,6 +4,7 @@
 |---|---|---|
 | Hyprland | Composition, input, animation, bindings | `hyprland` |
 | Waybar | Sequoia-style menu bar and status controls | `waybar`, `networkmanager`, `bluetoothctl` |
+| Dock | Bottom-centered application dock with native/fallback backends | `nwg-dock` (optional), `waybar` |
 | Walker | Spotlight-style search | `walker-bin` |
 | SwayNC | Notifications and media panel | `swaync` |
 | Hyprlock / Hypridle | Lock and idle policy | `hyprlock`, `hypridle` |

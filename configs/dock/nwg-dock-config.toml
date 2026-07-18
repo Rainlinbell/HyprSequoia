@@ -1,0 +1,28 @@
+# Configuration for the preferred Rust nwg-dock backend.
+# Runtime flags supplied by scripts/dock.sh intentionally override these values.
+
+[behavior]
+autohide = true
+resident = true
+multi = true
+hide-timeout = 400
+hotspot-delay = 20
+
+[layout]
+position = "bottom"
+alignment = "center"
+mb = 10
+layer = "overlay"
+exclusive = false
+
+[appearance]
+icon-size = 48
+opacity = 78
+launch-animation = true
+
+[launcher]
+launcher-pos = "end"
+nolauncher = false
+
+[filters]
+# Keep all client windows visible; users can add class filters locally.

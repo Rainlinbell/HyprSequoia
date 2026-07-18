@@ -1,0 +1,13 @@
+/* Dark Sequoia glass palette for the dock. */
+@define-color dock_surface rgba(24, 25, 31, 0.82);
+@define-color dock_tooltip rgba(37, 38, 47, 0.97);
+@define-color dock_border rgba(255, 255, 255, 0.16);
+@define-color dock_shadow rgba(0, 0, 0, 0.4);
+@define-color dock_hover rgba(255, 255, 255, 0.14);
+@define-color dock_active rgba(138, 180, 248, 0.19);
+@define-color dock_text #f5f5f7;
+@define-color dock_muted rgba(245, 245, 247, 0.62);
+@define-color dock_icon #f5f5f7;
+@define-color dock_icon_active #ffffff;
+@define-color dock_accent #8ab4f8;
+@define-color dock_indicator #8ab4f8;

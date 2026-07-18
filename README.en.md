@@ -10,7 +10,7 @@ An original, modular Hyprland desktop experience for Arch Linux, inspired by mac
 
 HyprSequoia is a maintainable desktop distribution layer—not a collection of personal dotfiles. It provides guided installation, configuration backups, failure rollback, updates, and restoration for Arch Linux users, KDE migrants, and Linux newcomers.
 
-> **Project status: v0.1 foundation.** The Hyprland session, installer, backup and restore, menu bar, launcher, notifications, lock screen, wallpaper, and daily hardware integrations are functional. Dock magnification, drag reordering, a unified Control Center, automatic light/dark scheduling, and a graphical installer remain roadmap items.
+> **Project status: v0.1 foundation.** The Hyprland session, installer, backup and restore, menu bar, launcher, notifications, lock screen, wallpaper, and daily hardware integrations are functional. Full Dock interaction (drag ordering, launch bounce, and native multi-monitor hotspots) is available with the optional Rust backend; systems without it use the lightweight fallback. A unified Control Center, automatic light/dark scheduling, and a graphical installer remain roadmap items.
 
 ## Features
 
@@ -18,6 +18,7 @@ HyprSequoia is a maintainable desktop distribution layer—not a collection of p
 - macOS-inspired menu bar with workspaces, network, Bluetooth, volume, battery, clock, and notifications
 - Walker search for applications, files, calculations, and clipboard history
 - SwayNC notifications and media controls
+- Bottom Sequoia Dock with auto-hide, running indicators, favorites, recents, and multi-monitor support
 - Hyprlock blurred lock screen and Hypridle automatic locking
 - PipeWire audio, NetworkManager, Bluetooth, brightness, and screenshot integration
 - Full, minimal, Chinese, NVIDIA, AMD, and Intel installation profiles
@@ -87,6 +88,7 @@ KDE is not removed by default. Keep it as a fallback until HyprSequoia meets you
 | Close the active window | `Super` + `Q` |
 | Toggle fullscreen | `Super` + `F` |
 | Toggle floating | `Super` + `V` |
+| Toggle the Dock | `Super` + `B` |
 | Switch to workspace 1–4 | `Super` + `1`–`4` |
 | Move a window to workspace 1–4 | `Super` + `Shift` + `1`–`4` |
 | Region screenshot | `Print` |
@@ -123,10 +125,19 @@ Logs, backups, and the installation manifest are stored in:
 
 See the [lifecycle documentation](docs/LIFECYCLE.md) for details.
 
+### Dock
+
+The Dock starts automatically with the Hyprland session. When the Rust
+`nwg-dock` binary is available, HyprSequoia uses the full native backend with
+drag ordering, launch bounce, and multi-monitor hotspots; otherwise it falls
+back to the Go backend or a lightweight Waybar implementation. See the [Dock
+documentation](docs/DOCK.md).
+
 ## Architecture
 
 - `configs/hypr/conf.d/`: independently owned compositor modules
 - `configs/{waybar,kitty,walker,swaync}/`: desktop application configuration
+- `configs/dock/`: native-first bottom Dock and Waybar fallback configuration
 - `scripts/lib/`: shared installer and package primitives
 - `scripts/bin/`: runtime commands installed in `~/.local/bin`
 - `themes/` and `wallpapers/`: project visual assets and variants

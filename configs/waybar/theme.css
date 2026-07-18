@@ -1,0 +1,14 @@
+/* Default dark Sequoia palette. theme.sh replaces this file for light mode. */
+@define-color hs_bar rgba(24, 25, 31, 0.78);
+@define-color hs_surface rgba(37, 38, 47, 0.96);
+@define-color hs_border rgba(255, 255, 255, 0.14);
+@define-color hs_border_strong rgba(255, 255, 255, 0.23);
+@define-color hs_shadow rgba(0, 0, 0, 0.34);
+@define-color hs_hover rgba(255, 255, 255, 0.13);
+@define-color hs_text #f5f5f7;
+@define-color hs_text_strong #ffffff;
+@define-color hs_text_muted rgba(245, 245, 247, 0.72);
+@define-color hs_text_subtle rgba(245, 245, 247, 0.44);
+@define-color hs_accent #8ab4f8;
+@define-color hs_warning #f6d58b;
+@define-color hs_critical #ff8e9e;

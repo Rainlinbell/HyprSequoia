@@ -1,8 +1,40 @@
-* { font-family: "JetBrainsMono Nerd Font", "Noto Sans CJK SC", sans-serif; font-size: 12px; min-height: 0; }
-window#waybar { background: rgba(20, 22, 30, .72); color: #f7f7fa; border-bottom: 1px solid rgba(255,255,255,.12); }
-#custom-apple, #window, #workspaces, #clock, #network, #bluetooth, #pulseaudio, #battery, #custom-notifications { padding: 0 10px; margin: 4px 1px; border-radius: 9px; }
-#custom-apple { font-size: 17px; padding-left: 13px; }
-#custom-apple:hover, #network:hover, #bluetooth:hover, #pulseaudio:hover, #custom-notifications:hover { background: rgba(255,255,255,.14); }
-#workspaces button { color: rgba(255,255,255,.55); padding: 0 4px; }
-#workspaces button.active { color: #fff; }
-#battery.warning { color: #f9e2af; } #battery.critical { color: #f38ba8; }
+@import "theme.css";
+
+/* Waybar provides the surface; Hyprland's layerrule provides the compositor blur. */
+* {
+  border: none;
+  border-radius: 0;
+  font-family: "SF Pro Display", "SF Pro Text", Inter, "Noto Sans CJK SC", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  min-height: 0;
+}
+window#waybar { background: transparent; color: @hs_text; }
+window#waybar > box { background: @hs_bar; border: 1px solid @hs_border; border-radius: 12px; box-shadow: 0 8px 28px @hs_shadow; margin: 0; padding: 0 5px; }
+tooltip { background: @hs_surface; border: 1px solid @hs_border_strong; border-radius: 10px; color: @hs_text; padding: 7px 10px; }
+
+#custom-apple, #window, #custom-menu-file, #custom-menu-edit, #custom-menu-view, #custom-menu-window, #custom-menu-help,
+#language, #custom-clipboard, #custom-bluetooth, #network, #custom-vpn, #custom-brightness, #pulseaudio,
+#pulseaudio.microphone, #battery, #custom-calendar, #clock, #custom-notifications, #custom-control-center {
+  color: @hs_text; margin: 3px 1px; padding: 0 8px; transition-property: background-color, color; transition-duration: 180ms;
+}
+#custom-apple { color: @hs_accent; font-size: 17px; font-weight: 700; padding-left: 10px; padding-right: 10px; }
+#window { color: @hs_text_muted; font-weight: 600; margin-left: 3px; max-width: 170px; }
+#custom-menu-file, #custom-menu-edit, #custom-menu-view, #custom-menu-window, #custom-menu-help { padding-left: 7px; padding-right: 7px; }
+#window.center { color: @hs_text_muted; font-size: 11px; font-weight: 600; }
+
+#custom-apple:hover, #custom-menu-file:hover, #custom-menu-edit:hover, #custom-menu-view:hover, #custom-menu-window:hover,
+#custom-menu-help:hover, #custom-clipboard:hover, #custom-bluetooth:hover, #network:hover, #custom-vpn:hover,
+#custom-brightness:hover, #pulseaudio:hover, #pulseaudio.microphone:hover, #battery:hover, #custom-calendar:hover,
+#clock:hover, #custom-notifications:hover, #custom-control-center:hover {
+  background: @hs_hover; border-radius: 8px; color: @hs_text_strong;
+}
+#workspaces button { color: @hs_text_muted; padding: 0 4px; }
+#workspaces button.active { color: @hs_accent; }
+#custom-bluetooth.disabled, #network.disconnected, #custom-vpn.disconnected, #pulseaudio.muted, #pulseaudio.microphone.source-muted { color: @hs_text_subtle; }
+#battery.warning { color: @hs_warning; }
+#battery.critical { color: @hs_critical; }
+#custom-notifications, #custom-control-center { font-size: 14px; padding-left: 7px; padding-right: 9px; }
+
+/* Modules use max-length rather than monitor-specific rules for narrow outputs. */
+#custom-menu-help, #custom-menu-window, #custom-vpn, #custom-calendar { min-width: 0; }

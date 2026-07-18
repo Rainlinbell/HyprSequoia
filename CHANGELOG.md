@@ -6,6 +6,10 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ### Added
 
+- Sequoia-style multi-monitor Waybar menu bar with Apple/app menus, window title,
+  clipboard, keyboard layout, network, Bluetooth, VPN, brightness, audio,
+  microphone, battery, calendar, clock, notifications, and Control Center.
+- Modular Waybar status scripts with dark/light palette switching.
 - Chinese-first GitHub README with an English language switch and expanded usage instructions.
 - Original modular Hyprland session foundation.
 - Transactional interactive Arch installer with profiles and logs.

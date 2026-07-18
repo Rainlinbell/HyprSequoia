@@ -71,6 +71,10 @@ deploy() {
   for component in hypr waybar kitty walker swaync; do
     install_tree "$ROOT/configs/$component" "$HOME/.config/$component"
   done
+  # Waybar's custom modules are executable entry points, unlike ordinary CSS/JSON files.
+  if [[ -d $HOME/.config/waybar/scripts ]]; then
+    while IFS= read -r -d '' script; do chmod 755 "$script"; done < <(find "$HOME/.config/waybar/scripts" -type f -name '*.sh' -print0)
+  fi
   install_tree "$ROOT/themes" "$HOME/.local/share/hyprsequoia/themes"
   local script
   for script in "$ROOT/scripts/bin/"*; do

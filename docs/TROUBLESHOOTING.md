@@ -2,16 +2,95 @@
 
 ## Session returns to SDDM
 
-Switch to a TTY with `Ctrl+Alt+F3`, sign in, and inspect
-`journalctl --user -b` plus `journalctl -b -u sddm`. Confirm `Hyprland` launches
-from the TTY. NVIDIA users should install the driver appropriate to their exact
-GPU generation and enable DRM modesetting according to the Arch Wiki.
+Switch to a TTY with `Ctrl+Alt+F3` and sign in as the same non-root user. Do not
+keep retrying SDDM: a compositor crash normally returns to the greeter without
+showing the real error.
+
+Run the bundled collector after updating/reinstalling HyprSequoia:
+
+```bash
+~/.local/bin/hyprsequoia-diagnose
+```
+
+If the command has not been installed yet, run it from the repository:
+
+```bash
+./scripts/bin/hyprsequoia-diagnose
+```
+
+The report is written to
+`~/.local/state/hyprsequoia/logs/diagnose-*.log`. It includes versions, GPU and
+driver information, config verification, bounded journal tails, crash reports,
+and the latest runtime log. Review it before sharing it.
+
+### Verify and start from the TTY
+
+```bash
+Hyprland --config ~/.config/hypr/hyprland.conf --verify-config
+start-hyprland
+```
+
+Use `start-hyprland`, not the compositor binary directly. Hyprland 0.53 added
+this wrapper for crash recovery and safe mode. The Arch package's SDDM entry
+normally uses it already.
+
+HyprSequoia targets current Arch Hyprland and uses the 0.53+ `windowrule`,
+`layerrule`, and `gesture` syntax. The installer now verifies the deployed
+config and rolls it back if Hyprland rejects it. It also moves an existing
+`~/.config/hypr/hyprland.lua` aside after backing it up, because Hyprland 0.55
+would otherwise prefer the Lua file and ignore the validated `hyprland.conf`.
+
+### NVIDIA checklist
+
+Identify the device, installed module, and DRM mode:
+
+```bash
+lspci -nnk | grep -A3 -E 'VGA|3D|Display'
+pacman -Q nvidia-open-dkms nvidia-dkms nvidia-open nvidia 2>/dev/null
+cat /sys/module/nvidia_drm/parameters/modeset 2>/dev/null
+dkms status 2>/dev/null
+```
+
+The modeset value must be `Y`. On Arch, current NVIDIA packages enable it by
+default. If it is not enabled, create `/etc/modprobe.d/nvidia.conf` with
+`options nvidia_drm modeset=1`, rebuild the initramfs with `sudo mkinitcpio -P`,
+and reboot. RTX 50-series hardware requires `nvidia-open-dkms`; open modules are
+also normally preferred for GTX 16-series/RTX hardware, while older supported
+cards may need `nvidia-dkms`. Every installed kernel needs its matching headers
+package. See the [Hyprland NVIDIA guide](https://wiki.hypr.land/0.55.0/Nvidia/)
+and [ArchWiki NVIDIA page](https://wiki.archlinux.org/title/NVIDIA) before
+changing an existing working driver stack.
+
+Hybrid/multi-GPU systems may need an explicit `AQ_DRM_DEVICES` order, but do not
+guess `/dev/dri/card*` numbers. Resolve the stable `by-path` devices first and
+follow the [Hyprland multi-GPU guide](https://wiki.hypr.land/Configuring/Multi-GPU/).
+
+### Raw commands
+
+When the collector cannot run, capture these manually:
+
+```bash
+journalctl -b -u sddm --no-pager -n 120
+journalctl --user -b --no-pager -n 160
+find ~/.cache/hyprland -maxdepth 1 -type f -name 'hyprlandCrashReport*' \
+  -print -exec tail -n 100 {} \;
+```
 
 ## Black wallpaper or missing bar
 
-Run `hyprpaper` or `waybar` in a terminal to expose parsing errors. Confirm the
-bundled wallpaper exists at `~/.config/hypr/wallpapers/default.svg`. Reload
-Hyprland with `hyprctl reload` after edits.
+This is not an SDDM login loop: the compositor remains running. Inspect the
+newest `session-*`, `wallpaper-*`, and `dock-*` files under
+`~/.local/state/hyprsequoia/logs`. Run Waybar in a terminal to expose parser
+errors:
+
+```bash
+waybar -c ~/.config/waybar/config.jsonc -s ~/.config/waybar/style.css
+```
+
+The wallpaper helper rasterizes the bundled SVG to
+`~/.cache/hyprsequoia/default.png` with ImageMagick before starting hyprpaper.
+If the converter is removed later, the helper logs the problem and leaves the
+compositor running. Reload Hyprland with `hyprctl reload` after config edits.
 
 ## Screen sharing fails
 

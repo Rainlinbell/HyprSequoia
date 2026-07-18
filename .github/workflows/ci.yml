@@ -16,7 +16,10 @@ jobs:
       - name: Validate JSON
         run: find . -type f -name '*.json' -print0 | xargs -0 -n1 jq empty
       - name: Validate Waybar JSONC
-        run: jq empty configs/waybar/config.jsonc
+        run: jq empty configs/waybar/config.jsonc configs/dock/config.jsonc
+      - name: Reject removed Hyprland syntax
+        run: |
+          ! grep -RInE '^[[:space:]]*(windowrulev2[[:space:]]*=|gestures[[:space:]]*\{|[[:space:]]*workspace_swipe(_fingers)?[[:space:]]*=|layerrule[[:space:]]*=[[:space:]]*(blur|ignorezero),)' configs/hypr
       - name: Validate Dock TOML
         run: python -c 'import tomllib, pathlib; tomllib.loads(pathlib.Path("configs/dock/nwg-dock-config.toml").read_text())'
       - name: Reject trailing whitespace

@@ -5,11 +5,12 @@ are stable user entry points. `scripts/lib` owns shared behavior; runtime helper
 in `scripts/bin` must remain independently executable. Each application owns one
 directory below `configs`.
 
-Hyprland loads numbered modules in a predictable order: environment, input,
-appearance, rules, bindings, then autostart. A module may rely on earlier
-variables but must not redefine another module's responsibility. Local users can
-create `~/.config/hypr/local.conf` and add it as the final source in
-`hyprland.conf`; the installer does not create that override file.
+Hyprland loads numbered modules in a predictable order: environment, monitor
+fallback, input, appearance, rules, bindings, then autostart. A module may rely
+on earlier variables but must not redefine another module's responsibility.
+Local users can edit `~/.config/hypr/local.conf`, which is sourced last; the
+installer creates an empty placeholder and preserves it across updates so
+monitor and device overrides are never lost.
 
 ## Installation transaction
 
@@ -17,13 +18,22 @@ create `~/.config/hypr/local.conf` and add it as the final source in
 2. Resolve profile and hardware hints.
 3. Install packages before modifying user configuration.
 4. Back up only component trees the project manages.
-5. deploy files and record each path in the installation manifest.
-6. Enable required system services.
-7. Commit; on an earlier failure, restore the configuration snapshot.
+5. Deploy files and record each path in the installation manifest.
+6. Verify the active Hyprland and JSON configurations without starting a session.
+7. Enable required system services.
+8. Commit; on an earlier failure, restore the configuration snapshot.
 
 Package installation itself is not rolled back: removing newly installed shared
 packages could break unrelated applications. Configuration rollback is bounded
 and deterministic.
+
+## Session startup
+
+Hyprland starts one `hyprsequoia-session` helper after importing the Wayland
+environment. The helper launches each optional service independently and writes
+one timestamped session log. A missing or crashing bar, wallpaper provider,
+notification daemon, clipboard watcher, or Dock therefore cannot terminate the
+compositor or hide the cause of a partial startup.
 
 ## Dock backends
 

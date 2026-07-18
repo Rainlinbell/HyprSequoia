@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# Start hyprpaper with a current-format config and a safe SVG fallback.
+set -u
+export PATH="$HOME/.local/bin:$PATH"
+
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/hyprsequoia"
+log_dir="$state_dir/logs"
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/hyprsequoia"
+mkdir -p "$log_dir" "$cache_dir"
+log="$log_dir/wallpaper-$(date +%Y%m%d-%H%M%S).log"
+source_image="$HOME/.config/hypr/wallpapers/default.svg"
+image="$source_image"
+
+if [[ ! -r $source_image ]]; then
+    printf '[HyprSequoia] wallpaper asset missing: %s\n' "$source_image" >>"$log"
+    exit 0
+fi
+
+# hyprpaper builds without librsvg cannot decode SVG. The installer includes
+# ImageMagick so the source asset can be converted once into the user cache;
+# if the converter is later removed, the session still starts safely.
+if [[ $source_image == *.svg ]]; then
+    image="$cache_dir/default.png"
+    if [[ ! -r $image || $source_image -nt $image ]]; then
+        converter=''
+        if command -v magick >/dev/null 2>&1; then converter=magick
+        elif command -v convert >/dev/null 2>&1; then converter=convert
+        fi
+        if [[ -n $converter ]]; then
+            if ! "$converter" "$source_image" -background none -resize 2560x1440 "$image" >>"$log" 2>&1; then
+                printf '[HyprSequoia] could not rasterize SVG; skipping wallpaper\n' >>"$log"
+                rm -f -- "$image"
+                exit 0
+            fi
+        else
+            printf '[HyprSequoia] ImageMagick not found; skipping SVG wallpaper\n' >>"$log"
+            exit 0
+        fi
+    fi
+fi
+
+config="$cache_dir/hyprpaper.conf"
+{
+    printf 'splash = false\n'
+    printf 'wallpaper {\n  monitor =\n  path = %s\n  fit_mode = cover\n}\n' "$image"
+} >"$config"
+
+if command -v hyprpaper >/dev/null 2>&1; then
+    exec hyprpaper --config "$config" >>"$log" 2>&1
+fi
+printf '[HyprSequoia] hyprpaper is not installed; leaving compositor background untouched\n' >>"$log"

@@ -2,9 +2,13 @@
 
 The installer owns the files recorded at
 `~/.local/state/hyprsequoia/installed-files`. Reinstalling creates a new dated
-backup and refreshes the manifest. Keep personal overrides in files not present
-in the repository, ideally `~/.config/hypr/local.conf`, and source them last from
-`hyprland.conf`.
+backup and refreshes the manifest. `~/.config/hypr/local.conf` is the supported
+personal override file: the repository supplies only a placeholder and the
+installer preserves the user's copy across reinstalls.
+
+Package installation uses `pacman -Syu` so Hyprland and its tightly coupled
+Aquamarine/Hypr* libraries are upgraded as one supported Arch transaction. The
+installer never performs a partial `pacman -Sy`/`pacman -S` upgrade.
 
 `update.sh` accepts only a clean Git checkout and performs a fast-forward pull
 before returning to the interactive installer. This prevents accidental merges

@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# Start optional HyprSequoia session services without making compositor startup
+# depend on any single desktop helper being installed or healthy.
+set -u
+export PATH="$HOME/.local/bin:$PATH"
+
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/hyprsequoia"
+log_dir="$state_dir/logs"
+mkdir -p "$log_dir"
+log="$log_dir/session-$(date +%Y%m%d-%H%M%S).log"
+exec >>"$log" 2>&1
+
+printf '[HyprSequoia] session helpers starting (%s)\n' "$(date --iso-8601=seconds 2>/dev/null || date)"
+
+has_command() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+spawn() {
+    local label=$1 command_name=$2
+    shift 2
+    if ! has_command "$command_name"; then
+        printf '[HyprSequoia] skip %-18s (%s not installed)\n' "$label" "$command_name"
+        return 0
+    fi
+    printf '[HyprSequoia] start %-17s\n' "$label"
+    "$command_name" "$@" &
+}
+
+spawn Waybar waybar
+spawn Notifications swaync
+spawn Wallpaper hyprsequoia-wallpaper
+spawn Hypridle hypridle
+
+if [[ -x /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 ]]; then
+    printf '[HyprSequoia] start %-17s\n' 'Polkit agent'
+    /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+else
+    printf '[HyprSequoia] skip %-18s (polkit-gnome agent not found)\n' 'Polkit agent'
+fi
+
+spawn NetworkManager nm-applet --indicator
+spawn Bluetooth blueman-applet
+spawn Walker elephant
+
+if has_command wl-paste && has_command cliphist; then
+    printf '[HyprSequoia] start %-17s\n' 'Clipboard text'
+    wl-paste --type text --watch cliphist store &
+    printf '[HyprSequoia] start %-17s\n' 'Clipboard images'
+    wl-paste --type image --watch cliphist store &
+else
+    printf '[HyprSequoia] skip clipboard watchers (wl-paste or cliphist missing)\n'
+fi
+
+if [[ -x "$HOME/.config/dock/scripts/dock.sh" ]]; then
+    printf '[HyprSequoia] start %-17s\n' 'Dock'
+    "$HOME/.config/dock/scripts/dock.sh" start &
+else
+    printf '[HyprSequoia] skip %-18s (dock script missing)\n' 'Dock'
+fi
+
+if has_command fcitx5 && [[ -r "$HOME/.config/fcitx5/profile" ]]; then
+    printf '[HyprSequoia] start %-17s\n' 'Fcitx5'
+    fcitx5 -d &
+fi
+
+printf '[HyprSequoia] session helpers launched; log: %s\n' "$log"

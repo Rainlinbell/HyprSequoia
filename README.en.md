@@ -60,11 +60,11 @@ The installer offers these profiles:
 | Full Install | Complete desktop and common graphical tools; recommended for most users |
 | Minimal Install | Core Hyprland desktop components only |
 | Chinese Environment | Full install with Fcitx5, Rime, and Noto CJK fonts |
-| NVIDIA / AMD / Intel | Manually select a GPU profile; automatic detection normally suffices |
+| NVIDIA / AMD / Intel | Manually select a GPU profile; a new NVIDIA setup prompts for open/proprietary DKMS |
 | Remove KDE Plasma | Enter the separately confirmed KDE migration flow while preserving SDDM |
 | Restore Backup | Restore the most recent pre-install configuration backup |
 
-Packages are installed before managed configuration is backed up and deployed. NetworkManager and Bluetooth are then enabled. If configuration deployment fails, the installer restores the backup created by that run.
+The installer first performs Arch's required full-system upgrade with `pacman -Syu` and installs packages. Managed configuration is then backed up, deployed, and validated for Hyprland, Waybar, the Dock, and SwayNC. NetworkManager and Bluetooth are enabled last. If deployment or validation fails, the installer restores the backup created by that run.
 
 ### 3. Start the desktop
 
@@ -147,7 +147,30 @@ Read [ARCHITECTURE.md](docs/ARCHITECTURE.md) and [CONTRIBUTING.md](CONTRIBUTING.
 
 ## Troubleshooting
 
-Inspect the newest log in `~/.local/state/hyprsequoia/logs`, then run:
+### Black screen followed by SDDM
+
+This means the Hyprland session exited while starting; it is not merely a failed Waybar or Dock. Press `Ctrl` + `Alt` + `F3`, sign in to the same account, then update and rerun the installer:
+
+```bash
+cd ~/HyprSequoia   # use the actual checkout path if different
+git pull --ff-only
+./install.sh
+```
+
+This release migrates window, layer, and gesture rules to Hyprland 0.53+ syntax, adds an output-agnostic monitor fallback, and runs `Hyprland --verify-config` before installation can complete. NVIDIA users must reboot after driver installation before selecting Hyprland in SDDM.
+
+If SDDM still returns, run from the TTY:
+
+```bash
+~/.local/bin/hyprsequoia-diagnose
+cat /sys/module/nvidia_drm/parameters/modeset 2>/dev/null
+```
+
+The report is saved under `~/.local/state/hyprsequoia/logs/diagnose-*.log`. Review it for personal information before sharing it.
+
+### Component failures
+
+Inspect the newest install and session logs in `~/.local/state/hyprsequoia/logs`, then run:
 
 ```bash
 hyprctl systeminfo
@@ -171,7 +194,7 @@ No. The architecture, configuration, scripts, and bundled artwork are original. 
 
 **Does it support NVIDIA?**
 
-The installer detects NVIDIA hardware and installs common userspace components. Kernel driver selection remains explicit because the correct proprietary or open driver depends on the GPU generation.
+Yes. The installer preserves an installed NVIDIA driver. On a new setup it prompts for `nvidia-open-dkms` or `nvidia-dkms`, adds headers for standard Arch kernels, and installs `nvidia-utils` plus `egl-wayland`. RTX 50-series GPUs require the open kernel modules; RTX/GTX 16-series and newer hardware generally prefers them, while older supported GPUs should use proprietary DKMS. Reboot after installing the driver.
 
 **Can I keep KDE?**
 

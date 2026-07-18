@@ -60,11 +60,11 @@ chmod +x install.sh update.sh restore.sh uninstall-kde.sh
 | Full Install | 安装完整桌面和常用图形工具，推荐大多数用户选择 |
 | Minimal Install | 只安装核心 Hyprland 桌面组件 |
 | Chinese Environment | 完整安装并配置 Fcitx5、Rime 和 Noto CJK 字体 |
-| NVIDIA / AMD / Intel | 手动指定显卡配置；一般可让安装器自动检测 |
+| NVIDIA / AMD / Intel | 手动指定显卡配置；NVIDIA 首次安装会询问 open/proprietary DKMS 驱动 |
 | Remove KDE Plasma | 安装后进入单独确认的 KDE 迁移流程，并保留 SDDM |
 | Restore Backup | 恢复最近一次安装前的配置备份 |
 
-安装过程会先安装软件包，再备份项目管理范围内的 `~/.config` 配置，然后部署新配置并启用 NetworkManager 和蓝牙服务。如果配置部署阶段失败，安装器会自动恢复本次安装前的配置。
+安装过程会先通过 `pacman -Syu` 完成 Arch 全系统升级并安装软件包，再备份项目管理范围内的 `~/.config` 配置，然后部署并校验 Hyprland、Waybar、Dock 与 SwayNC 配置，最后启用 NetworkManager 和蓝牙服务。如果配置部署或校验失败，安装器会自动恢复本次安装前的配置。
 
 ### 3. 进入 HyprSequoia 桌面
 
@@ -145,7 +145,30 @@ HyprSequoia 会启用完整的原生 Dock（拖动排序、启动弹跳和多屏
 
 ## 故障排查
 
-首先查看 `~/.local/state/hyprsequoia/logs` 中最新的安装日志，然后运行：
+### 登录后黑屏并返回 SDDM
+
+这通常表示 Hyprland 在创建会话时退出，而不是 Waybar 或 Dock 单独故障。按 `Ctrl` + `Alt` + `F3` 进入 TTY，登录同一账号，然后更新并重新运行安装器：
+
+```bash
+cd ~/HyprSequoia   # 如果仓库不在这里，请换成实际路径
+git pull --ff-only
+./install.sh
+```
+
+本版本已迁移 Hyprland 0.53+ 的窗口规则、图层规则和手势语法，添加通用显示器兜底，并在安装结束前运行 `Hyprland --verify-config`。如果是 NVIDIA，安装完成后必须先重启，再从 SDDM 进入 Hyprland。
+
+如果仍然返回 SDDM，在 TTY 运行：
+
+```bash
+~/.local/bin/hyprsequoia-diagnose
+cat /sys/module/nvidia_drm/parameters/modeset 2>/dev/null
+```
+
+诊断报告会保存在 `~/.local/state/hyprsequoia/logs/diagnose-*.log`。请在提交问题前检查其中是否含个人信息。
+
+### 组件故障
+
+首先查看 `~/.local/state/hyprsequoia/logs` 中最新的安装和会话日志，然后运行：
 
 ```bash
 hyprctl systeminfo
@@ -169,7 +192,7 @@ waybar
 
 **支持 NVIDIA 吗？**
 
-安装器能够检测 NVIDIA 硬件并安装通用用户空间组件。不同代际显卡适合的内核驱动不同，因此内核驱动仍需用户根据具体型号明确选择。
+支持。安装器会保留已安装的 NVIDIA 驱动；全新配置会让用户选择 `nvidia-open-dkms` 或 `nvidia-dkms`，同时安装匹配的标准 Arch 内核头文件、`nvidia-utils` 和 `egl-wayland`。RTX 50 系列必须使用 open 内核模块，RTX/GTX 16 系列及更新型号通常也推荐 open 模块；旧型号请选择 proprietary DKMS。驱动安装后需要重启。
 
 **可以继续保留 KDE 吗？**
 

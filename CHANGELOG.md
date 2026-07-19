@@ -41,6 +41,9 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ### Fixed
 
+- Switched Spotlight's Elephant runtime and targeted providers to their
+  prebuilt AUR split packages, avoiding unnecessary Go compilation and
+  `proxy.golang.org` failures during a normal desktop installation.
 - Made `update.sh` fetch and fast-forward the resolved remote branch explicitly,
   report the before/after commit, support checkouts without an upstream, and
   state clearly that the subsequent installer must finish before deployment.

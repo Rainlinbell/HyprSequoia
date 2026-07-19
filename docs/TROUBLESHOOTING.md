@@ -16,6 +16,17 @@ it prints the `yay-bin` AUR source and asks for explicit confirmation before
 installing `base-devel`, cloning the PKGBUILD, and running `makepkg`. Declining
 does not deploy or replace user configuration.
 
+Current installations use the prebuilt `elephant-bin` split packages. Older
+checkouts selected the source-built `elephant` package, which could end with
+`proxy.golang.org: i/o timeout`, followed by `walker-bin` reporting an
+unresolved `elephant` dependency. Update the repository and rerun the installer;
+the binary package path does not compile or download Go modules:
+
+```bash
+git pull --ff-only
+./install.sh
+```
+
 To install the helper manually instead:
 
 ```bash

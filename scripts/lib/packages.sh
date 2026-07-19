@@ -4,8 +4,12 @@
 readonly -a HS_CORE_PACKAGES=(hyprland sddm waybar kitty walker-bin swaync hyprpaper hyprlock hypridle networkmanager bluez bluez-utils pipewire wireplumber pipewire-pulse xdg-desktop-portal-hyprland xdg-desktop-portal-gtk grim slurp wl-clipboard cliphist gammastep jq brightnessctl playerctl polkit-gnome qt5-wayland qt6-wayland noto-fonts noto-fonts-emoji ttf-jetbrains-mono-nerd bibata-cursor-theme imagemagick pciutils)
 readonly -a HS_FULL_PACKAGES=(thunar thunar-archive-plugin file-roller pavucontrol network-manager-applet blueman jq)
 readonly -a HS_CN_PACKAGES=(fcitx5-im fcitx5-rime fcitx5-configtool noto-fonts-cjk)
-readonly -a HS_SPOTLIGHT_CORE_PACKAGES=(elephant elephant-desktopapplications elephant-calc)
-readonly -a HS_SPOTLIGHT_EXTRA_PACKAGES=(elephant-files elephant-clipboard elephant-symbols elephant-unicode elephant-providerlist)
+# Walker itself and the official Elephant release both publish prebuilt AUR
+# packages. Prefer the matching Elephant split binaries: explicitly requesting
+# the source packages makes a normal desktop install compile Go modules and can
+# fail solely because proxy.golang.org is unreachable.
+readonly -a HS_SPOTLIGHT_CORE_PACKAGES=(elephant-bin elephant-desktopapplications-bin elephant-calc-bin)
+readonly -a HS_SPOTLIGHT_EXTRA_PACKAGES=(elephant-files-bin elephant-clipboard-bin elephant-symbols-bin elephant-unicode-bin elephant-providerlist-bin)
 HS_NVIDIA_EXTRA=()
 
 # Return the first supported AUR helper already available to the user.
@@ -141,7 +145,9 @@ install_packages() {
       offer_aur_helper_install || die "AUR packages are required: ${aur[*]}. Install yay or paru, then rerun the installer."
       helper=yay
     fi
-    "$helper" -S --needed --noconfirm "${aur[@]}"
+    if ! "$helper" -S --needed --noconfirm "${aur[@]}"; then
+      die "AUR package installation failed: ${aur[*]}. Review the first package error above, then retry."
+    fi
   fi
 }
 

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Terminal
+Comment=Open the configured terminal
+Exec=hyprsequoia-dock-launch terminal
+Icon=utilities-terminal
+Terminal=false
+Categories=System;TerminalEmulator;
+NoDisplay=true
+StartupNotify=true

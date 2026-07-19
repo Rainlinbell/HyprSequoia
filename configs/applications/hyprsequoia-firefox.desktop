@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Firefox
+Comment=Open Firefox or the configured browser fallback
+Exec=hyprsequoia-dock-launch firefox
+Icon=firefox
+Terminal=false
+Categories=Network;WebBrowser;
+NoDisplay=true
+StartupNotify=true

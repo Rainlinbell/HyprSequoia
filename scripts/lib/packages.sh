@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Package profiles and package-management helpers.
 
-readonly -a HS_CORE_PACKAGES=(hyprland sddm waybar kitty walker-bin swaync hyprpaper hyprlock hypridle networkmanager bluez bluez-utils pipewire wireplumber pipewire-pulse xdg-desktop-portal-hyprland xdg-desktop-portal-gtk grim slurp wl-clipboard cliphist gammastep jq brightnessctl playerctl polkit-gnome qt5-wayland qt6-wayland noto-fonts noto-fonts-emoji ttf-jetbrains-mono-nerd bibata-cursor-theme imagemagick librsvg nwg-dock-hyprland pciutils mesa mesa-utils)
-readonly -a HS_FULL_PACKAGES=(thunar thunar-archive-plugin file-roller pavucontrol network-manager-applet blueman jq)
+readonly -a HS_CORE_PACKAGES=(hyprland sddm waybar kitty walker-bin swaync hyprpaper hyprlock hypridle networkmanager bluez bluez-utils pipewire wireplumber pipewire-pulse xdg-desktop-portal-hyprland xdg-desktop-portal-gtk grim slurp wl-clipboard cliphist gammastep jq brightnessctl playerctl polkit-gnome qt5-wayland qt6-wayland desktop-file-utils noto-fonts noto-fonts-emoji inter-font adw-gtk-theme papirus-icon-theme ttf-jetbrains-mono-nerd bibata-cursor-theme imagemagick librsvg nwg-dock-hyprland pciutils mesa mesa-utils)
+readonly -a HS_FULL_PACKAGES=(thunar thunar-archive-plugin file-roller firefox pavucontrol network-manager-applet blueman jq)
 # Use concrete packages rather than the fcitx5-im group. `pacman -Si` resolves
 # packages, not groups, and package/AUR classification must remain deterministic.
 readonly -a HS_CN_PACKAGES=(fcitx5 fcitx5-configtool fcitx5-gtk fcitx5-qt fcitx5-rime noto-fonts-cjk)
@@ -247,7 +247,13 @@ install_packages() {
     spotlight_extra=("${HS_SPOTLIGHT_SOURCE_EXTRA_PACKAGES[@]}")
   fi
   local -a packages=("${HS_CORE_PACKAGES[@]}" "${spotlight_core[@]}" "${spotlight_extra[@]}")
-  [[ $HS_PROFILE == full ]] && packages+=("${HS_FULL_PACKAGES[@]}")
+  if [[ $HS_PROFILE == full ]]; then
+    packages+=("${HS_FULL_PACKAGES[@]}")
+    # Preserve an existing official VS Code or VSCodium family. The Arch
+    # `code` package conflicts with common AUR builds that already provide the
+    # same `code` command, so only add it when no compatible editor exists.
+    if ! has code && ! has code-oss && ! has codium; then packages+=(code); fi
+  fi
   [[ $HS_CHINESE == 1 ]] && packages+=("${HS_CN_PACKAGES[@]}")
   [[ ${HS_VIRT:-none} == vmware ]] && packages+=(open-vm-tools)
   case $HS_GPU in

@@ -19,7 +19,7 @@ else printf '%s\n' 'Hyprland: not found'; fi
 if command -v pacman >/dev/null 2>&1; then
     pacman -Q hyprland sddm uwsm aquamarine hyprutils hyprlang hyprgraphics \
         hyprland-guiutils nvidia-open-dkms nvidia-dkms nvidia-open nvidia \
-        nvidia-utils egl-wayland 2>/dev/null || true
+        nvidia-utils egl-wayland nwg-dock-hyprland inter-font 2>/dev/null || true
 fi
 for command_name in start-hyprland uwsm; do
     if command -v "$command_name" >/dev/null 2>&1; then
@@ -126,8 +126,26 @@ if command -v coredumpctl >/dev/null 2>&1; then
     coredumpctl list --no-pager --reverse Hyprland 2>&1 | head -n 10 || true
 fi
 
+printf '\n%s\n' '== Dock backend, pins, and recent logs =='
+dock_runtime_dir="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}/hyprsequoia-$UID}"
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}"
+for dock_state in "$dock_runtime_dir/hyprsequoia-dock-backend" \
+    "$dock_runtime_dir/hyprsequoia-dock.pid" \
+    "$HOME/.cache/mac-dock-pinned" \
+    "$cache_dir/nwg-dock-pinned"; do
+    [[ -r $dock_state ]] || continue
+    printf -- '--- %s\n' "$dock_state"
+    sed -n '1,80p' "$dock_state" || true
+done
+while IFS= read -r dock_log; do
+    [[ -r $dock_log ]] || continue
+    printf -- '--- %s (tail)\n' "$dock_log"
+    tail -n 120 "$dock_log" || true
+done < <(find "$log_dir" -maxdepth 1 -type f -name 'dock-*.log' -printf '%T@ %p\n' 2>/dev/null \
+    | sort -nr | head -n 2 | cut -d' ' -f2-)
+
 printf '\n%s\n' '== Hyprland crash reports =='
-find "$HOME/.cache/hyprland" -maxdepth 1 -type f -name 'hyprlandCrashReport*' -print \
+find "$cache_dir/hyprland" -maxdepth 1 -type f -name 'hyprlandCrashReport*' -print \
     -exec tail -n 100 {} \; 2>/dev/null || true
 
 printf '\n%s\n' '== Latest Hyprland runtime log =='

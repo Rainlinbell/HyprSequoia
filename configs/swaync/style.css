@@ -1,9 +1,6 @@
 @import "theme.css";
 
-* {
-  font-family: "SF Pro Display", "SF Pro Text", Inter, "JetBrainsMono Nerd Font", "Noto Sans CJK SC", sans-serif;
-  color: @cc_text;
-}
+* { font-family: Inter, "Noto Sans CJK SC", "JetBrainsMono Nerd Font", sans-serif; }
 
 .blank-window, .floating-notifications, .control-center-list { background: transparent; }
 
@@ -13,10 +10,11 @@
   border-radius: 28px;
   box-shadow: 0 22px 64px @cc_shadow, inset 0 1px @cc_highlight;
   padding: 14px;
+  color: @cc_text;
 }
 
 .widget-buttons-grid { margin: 0 0 10px; }
-.widget-buttons-grid flowboxchild { min-width: 184px; }
+.widget-buttons-grid flowboxchild { min-width: 164px; }
 .widget-buttons-grid flowboxchild > button {
   min-height: 54px;
   margin: 4px;
@@ -29,12 +27,14 @@
   font-weight: 600;
   transition: 180ms ease;
 }
+.widget-buttons-grid flowboxchild > button label { color: @cc_text; }
 .widget-buttons-grid flowboxchild > button:hover { background: @cc_tile_hover; }
 .widget-buttons-grid flowboxchild > button.toggle:checked {
   background: @cc_accent;
   border-color: @cc_accent_border;
   color: @cc_accent_text;
 }
+.widget-buttons-grid flowboxchild > button.toggle:checked label { color: @cc_accent_text; }
 
 .widget-volume, .widget-backlight, .widget-dnd, .widget-mpris-player, .widget-calendar {
   margin: 5px 4px;
@@ -47,7 +47,7 @@
 .widget-calendar { font-size: 12px; }
 .widget-calendar button { background: transparent; border: none; border-radius: 10px; padding: 5px; }
 .widget-calendar button:hover { background: @cc_tile_hover; }
-.widget-calendar:selected { background: @cc_accent; color: @cc_accent_text; border-radius: 10px; }
+.widget-calendar calendar label.day-number:selected { background: @cc_accent; color: @cc_accent_text; border-radius: 10px; }
 .widget-volume > label, .widget-backlight > label { min-width: 28px; font-size: 19px; }
 scale trough { min-height: 7px; background: @cc_track; border-radius: 999px; }
 scale highlight { min-height: 7px; background: @cc_accent_solid; border-radius: 999px; }
@@ -55,6 +55,7 @@ scale slider { min-width: 18px; min-height: 18px; background: @cc_slider; border
 
 .widget-mpris { margin: 0; }
 .widget-mpris-player { padding: 12px; }
+.mpris-overlay { background: @cc_media_overlay; border-radius: 18px; }
 .widget-mpris-title { font-size: 15px; font-weight: 700; }
 .widget-mpris-subtitle { color: @cc_muted; font-size: 12px; }
 .widget-mpris-player button { background: transparent; border: none; border-radius: 999px; padding: 7px; }
@@ -77,6 +78,7 @@ scale slider { min-width: 18px; min-height: 18px; background: @cc_slider; border
   box-shadow: inset 0 1px @cc_highlight;
   margin: 3px 0;
   padding: 4px;
+  color: @cc_text;
 }
 .notification-content { padding: 10px; }
 .summary { font-size: 14px; font-weight: 700; }
@@ -84,7 +86,11 @@ scale slider { min-width: 18px; min-height: 18px; background: @cc_slider; border
 .time { color: @cc_subtle; font-size: 11px; }
 .close-button { background: @cc_tile; border: none; border-radius: 999px; color: @cc_muted; margin: 5px; padding: 4px; }
 .close-button:hover { background: @cc_tile_hover; color: @cc_text; }
-.notification-action { background: @cc_tile; border: none; border-radius: 12px; color: @cc_text; margin: 3px; padding: 7px; }
-.notification-action:hover { background: @cc_tile_hover; }
+.notification-default-action { background: transparent; border: none; border-radius: 16px; color: @cc_text; margin: 0; padding: 0; }
+.notification-default-action:hover { background: @cc_tile_hover; }
+.notification-action > button { background: @cc_tile; border: none; border-radius: 12px; color: @cc_text; margin: 3px; padding: 7px; }
+.notification-action > button:hover { background: @cc_tile_hover; }
+.notification-alt-actions { background: transparent; padding: 2px; }
+.notification-group, .notification-group-headers, .notification-group-icon { background: transparent; }
 
 tooltip { background: @cc_glass_strong; border: 1px solid @cc_border; border-radius: 13px; color: @cc_text; }

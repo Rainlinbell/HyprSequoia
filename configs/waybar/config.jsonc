@@ -10,11 +10,11 @@
   "reload_style_on_change": true,
   "modules-left": ["custom/apple", "hyprland/window", "custom/menu-file", "custom/menu-edit", "custom/menu-view", "custom/menu-window", "custom/menu-help"],
   "modules-center": ["hyprland/window#center"],
-  "modules-right": ["custom/clipboard", "hyprland/language", "network", "custom/bluetooth", "custom/vpn", "custom/brightness", "pulseaudio", "pulseaudio#microphone", "battery", "custom/calendar", "clock", "custom/notifications", "custom/control-center"],
+  "modules-right": ["custom/clipboard", "hyprland/language", "network", "custom/bluetooth", "custom/vpn", "custom/brightness", "pulseaudio", "pulseaudio#microphone", "battery", "clock", "custom/control-center"],
 
   "custom/apple": {"format": "", "tooltip": "HyprSequoia", "on-click": "~/.config/waybar/scripts/apple-menu.sh", "on-click-right": "hyprsequoia-theme toggle"},
   "hyprland/window": {"format": "{class}", "max-length": 28, "separate-outputs": true},
-  "hyprland/window#center": {"format": "{title}", "max-length": 64, "separate-outputs": true},
+  "hyprland/window#center": {"format": "{title}", "max-length": 40, "separate-outputs": true},
   "hyprland/language": {"format": "󰌌 {short}", "format-en": "󰌌 EN", "format-zh": "󰌌 中文", "tooltip-format": "Keyboard: {long}", "on-click": "hyprctl switchxkblayout all next"},
 
   "custom/menu-file": {"format": "File", "tooltip": false, "on-click": "~/.config/waybar/scripts/app-menu.sh File"},
@@ -25,14 +25,14 @@
 
   "custom/clipboard": {"exec": "~/.config/waybar/scripts/clipboard.sh status", "return-type": "json", "interval": 5, "format": "{}", "on-click": "~/.config/waybar/scripts/clipboard.sh menu"},
   "custom/bluetooth": {"exec": "~/.config/waybar/scripts/bluetooth.sh", "return-type": "json", "interval": 10, "format": "{}", "on-click": "blueman-manager", "on-click-right": "hyprsequoia-control bluetooth toggle"},
-  "network": {"format-wifi": "󰖩 {essid}", "format-ethernet": "󰈀 {ipaddr}", "format-disconnected": "󰖪 Offline", "tooltip-format": "{ifname}: {ipaddr}/{cidr}", "max-length": 24, "on-click": "nm-connection-editor"},
+  "network": {"format-wifi": "󰖩", "format-ethernet": "󰈀", "format-disconnected": "󰖪", "tooltip-format-wifi": "{essid} • {signalStrength}%", "tooltip-format-ethernet": "{ifname}: {ipaddr}/{cidr}", "tooltip-format-disconnected": "Network disconnected", "on-click": "nm-connection-editor"},
   "custom/vpn": {"exec": "~/.config/waybar/scripts/vpn.sh", "return-type": "json", "interval": 10, "format": "{}", "on-click": "nm-connection-editor"},
   "custom/brightness": {"exec": "~/.config/waybar/scripts/brightness.sh", "return-type": "json", "interval": 10, "format": "{}", "on-scroll-up": "brightnessctl set 5%+", "on-scroll-down": "brightnessctl set 5%-"},
-  "pulseaudio": {"format": "{icon} {volume}%", "format-muted": "󰖁 Muted", "format-icons": ["󰕿", "󰖀", "󰕾"], "scroll-step": 5, "tooltip-format": "Output: {desc}", "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle", "on-click-right": "pavucontrol"},
-  "pulseaudio#microphone": {"format": "{format_source}", "format-source": "󰍬 {volume}%", "format-source-muted": "󰍭 Muted", "tooltip-format": "Input: {desc}", "on-click": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle", "on-click-right": "pavucontrol --tab=4"},
+  "pulseaudio": {"format": "{icon}", "format-muted": "󰖁", "format-icons": ["󰕿", "󰖀", "󰕾"], "scroll-step": 5, "tooltip-format": "Volume {volume}% • {desc}", "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle", "on-click-right": "pavucontrol"},
+  "pulseaudio#microphone": {"format": "{format_source}", "format-source": "󰍬", "format-source-muted": "󰍭", "tooltip-format": "Microphone {volume}% • {desc}", "on-click": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle", "on-click-right": "pavucontrol --tab=4"},
   "battery": {"format": "{icon} {capacity}%", "format-charging": "󰂄 {capacity}%", "format-plugged": "󰚥 {capacity}%", "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁹"], "states": {"warning": 25, "critical": 10}, "tooltip-format": "{time} remaining"},
   "custom/calendar": {"exec": "~/.config/waybar/scripts/calendar.sh", "return-type": "json", "interval": 30, "format": "{}", "on-click": "swaync-client -t -sw"},
-  "clock": {"format": "{:%H:%M}", "tooltip-format": "<big>{:%A, %B %d, %Y}</big>\n<tt>{calendar}</tt>", "on-click": "swaync-client -t -sw"},
+  "clock": {"format": "{:%a %b %d  %H:%M}", "tooltip-format": "<big>{:%A, %B %d, %Y}</big>\n<tt>{calendar}</tt>", "on-click": "swaync-client -t -sw"},
   "custom/notifications": {"exec": "swaync-client -swb", "return-type": "json", "format": "{icon}", "format-icons": {"notification": "󰂚", "none": "󰂜", "dnd-notification": "󰂛", "dnd-none": "󰪓", "inhibited-notification": "󰂛", "inhibited-none": "󰂜", "dnd-inhibited-notification": "󰂛", "dnd-inhibited-none": "󰪓"}, "tooltip": "Notification Center", "on-click": "swaync-client -t -sw", "on-click-right": "swaync-client -d -sw", "escape": true},
   "custom/control-center": {"format": "󰒓", "tooltip": "Control Center", "on-click": "swaync-client -t -sw", "on-click-right": "hyprsequoia-settings"}
 }

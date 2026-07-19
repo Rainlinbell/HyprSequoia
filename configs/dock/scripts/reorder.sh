@@ -21,10 +21,9 @@ case $action in
   *) exit 0;;
 esac
 printf '%s\n' "${apps[@]}" >"$DOCK_FAVORITES"
-mkdir -p "$HOME/.cache"
-# shellcheck disable=SC2016
-printf '%s\n' "${apps[@]}" | sed -e 's/^finder$/thunar/' -e 's/^files$/thunar/' -e 's/^code$/code/' -e 's/^terminal$/kitty/' -e 's/^settings$/systemsettings/' | awk 'NF && !seen[$0]++' >"$HOME/.cache/mac-dock-pinned"
-cp -- "$HOME/.cache/mac-dock-pinned" "$HOME/.cache/nwg-dock-pinned"
+mkdir -p "${DOCK_RUST_PIN_FILE%/*}" "${DOCK_GO_PIN_FILE%/*}"
+printf '%s\n' "${apps[@]}" | normalize_dock_pins >"$DOCK_RUST_PIN_FILE"
+cp -- "$DOCK_RUST_PIN_FILE" "$DOCK_GO_PIN_FILE"
 # Regenerate the fallback module order while leaving definitions untouched.
 modules='  "modules-center": ['
 for app in "${apps[@]}"; do modules+="\"custom/$app\", "; done

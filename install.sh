@@ -392,6 +392,20 @@ deploy() {
   cp -- "$HOME/.config/dock/nwg-style-$appearance.css" "$HOME/.config/dock/nwg-style.css"
   cp -- "$HOME/.config/swaync/theme-$appearance.css" "$HOME/.config/swaync/theme.css"
   cp -- "$HOME/.config/walker/themes/sequoia/theme-$appearance.css" "$HOME/.config/walker/themes/sequoia/theme.css"
+  if has gsettings; then
+    local gtk_theme=adw-gtk3-dark icon_theme=Papirus-Dark color_scheme=prefer-dark
+    if [[ $appearance == light ]]; then
+      gtk_theme=adw-gtk3
+      icon_theme=Papirus
+      color_scheme=prefer-light
+    fi
+    gsettings set org.gnome.desktop.interface font-name 'Inter 11' 2>/dev/null || true
+    gsettings set org.gnome.desktop.interface monospace-font-name 'JetBrainsMono Nerd Font 11' 2>/dev/null || true
+    gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Ice' 2>/dev/null || true
+    gsettings set org.gnome.desktop.interface gtk-theme "$gtk_theme" 2>/dev/null || true
+    gsettings set org.gnome.desktop.interface icon-theme "$icon_theme" 2>/dev/null || true
+    gsettings set org.gnome.desktop.interface color-scheme "$color_scheme" 2>/dev/null || true
+  fi
   # local.conf is intentionally a user-owned extension point. Keep the copy
   # from the backup when reinstalling instead of replacing personal overrides
   # with the empty project template.
@@ -414,12 +428,16 @@ deploy() {
     install -Dm755 "$script" "$HOME/.local/bin/$(basename "$script")"
     printf '%s\n' "$HOME/.local/bin/$(basename "$script")" >>"$HS_MANIFEST"
   done
-  local desktop
+  local desktop data_home
+  data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
   for desktop in "$ROOT/configs/applications/"*.desktop; do
     [[ -r $desktop ]] || continue
-    install -Dm644 "$desktop" "$HOME/.local/share/applications/$(basename "$desktop")"
-    printf '%s\n' "$HOME/.local/share/applications/$(basename "$desktop")" >>"$HS_MANIFEST"
+    install -Dm644 "$desktop" "$data_home/applications/$(basename "$desktop")"
+    printf '%s\n' "$data_home/applications/$(basename "$desktop")" >>"$HS_MANIFEST"
   done
+  if has update-desktop-database; then
+    update-desktop-database "$data_home/applications" || warn "Could not refresh the user desktop-entry database."
+  fi
   sed -i "s/__GPU_PROFILE__/$HS_GPU/" "$HOME/.config/hypr/conf.d/10-environment.conf"
   configure_gpu_environment
   if [[ $HS_CHINESE == 1 ]]; then
@@ -466,6 +484,10 @@ main() {
   [[ $HS_REMOVE_KDE == 1 ]] && "$ROOT/uninstall-kde.sh"
   install_sddm_session
   COMMITTED=1
+  if [[ ${HYPRSEQUOIA_SESSION:-0} == 1 ]] && has hyprctl && hyprctl monitors >/dev/null 2>&1; then
+    info "Refreshing the active HyprSequoia session."
+    "$HOME/.local/bin/hyprsequoia-refresh" || warn "Live refresh failed; log out and back in to apply the new interface."
+  fi
   if [[ $HS_GPU == nvidia ]]; then
     info "Installation complete. Reboot to load the NVIDIA module, then select HyprSequoia in SDDM (not the UWSM-managed entry)."
   else

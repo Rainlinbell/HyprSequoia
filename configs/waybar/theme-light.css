@@ -1,5 +1,5 @@
 /* Light Tahoe palette selected by the unified theme controller. */
-@define-color hs_bar rgba(0, 0, 0, 0);
+@define-color hs_bar rgba(246, 249, 255, 0.48);
 @define-color hs_surface rgba(248, 250, 255, 0.78);
 @define-color hs_border rgba(255, 255, 255, 0.66);
 @define-color hs_border_strong rgba(255, 255, 255, 0.82);

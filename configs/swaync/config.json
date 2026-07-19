@@ -7,8 +7,8 @@
   "control-center-margin-bottom": 10,
   "control-center-margin-right": 10,
   "control-center-margin-left": 10,
-  "control-center-width": 410,
-  "control-center-height": 760,
+  "control-center-width": 398,
+  "control-center-height": 690,
   "notification-window-width": 390,
   "notification-icon-size": 44,
   "notification-body-image-height": 120,
@@ -24,13 +24,15 @@
   "notification-inline-replies": true,
   "notification-2fa-action": true,
   "image-visibility": "when-available",
-  "fit-to-screen": true,
+  "cssPriority": "user",
+  "fit-to-screen": false,
   "hide-on-clear": false,
   "hide-on-action": true,
   "relative-timestamps": true,
   "widgets": ["buttons-grid", "volume", "backlight", "mpris", "calendar", "title", "dnd", "notifications"],
   "widget-config": {
     "buttons-grid": {
+      "buttons-per-row": 2,
       "actions": [
         {"label": "󰖩  Wi-Fi", "type": "toggle", "command": "hyprsequoia-control wifi \"$SWAYNC_TOGGLE_STATE\"", "update-command": "hyprsequoia-control wifi status"},
         {"label": "󰂯  Bluetooth", "type": "toggle", "command": "hyprsequoia-control bluetooth \"$SWAYNC_TOGGLE_STATE\"", "update-command": "hyprsequoia-control bluetooth status"},

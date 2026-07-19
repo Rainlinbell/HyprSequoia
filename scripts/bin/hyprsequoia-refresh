@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# Reload a running HyprSequoia session after configuration deployment.
+set -u
+export PATH="$HOME/.local/bin:$PATH"
+
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/hyprsequoia"
+log_dir="$state_dir/logs"
+mkdir -p "$log_dir"
+log="$log_dir/refresh-$(date +%Y%m%d-%H%M%S).log"
+exec >>"$log" 2>&1
+
+if ! command -v hyprctl >/dev/null 2>&1 || ! hyprctl monitors >/dev/null 2>&1; then
+  printf '%s\n' '[HyprSequoia] no running Hyprland session; refresh skipped.'
+  exit 0
+fi
+
+printf '[HyprSequoia] refreshing session components (%s)\n' "$(date --iso-8601=seconds 2>/dev/null || date)"
+hyprctl reload >/dev/null 2>&1 || true
+
+pkill -x hyprpaper 2>/dev/null || true
+for _ in {1..20}; do
+  pgrep -x hyprpaper >/dev/null 2>&1 || break
+  sleep 0.05
+done
+if pgrep -x hyprpaper >/dev/null 2>&1; then
+  printf '%s\n' '[HyprSequoia] old hyprpaper did not exit after one second; forcing a clean replacement.'
+  pkill -KILL -x hyprpaper 2>/dev/null || true
+fi
+if command -v hyprsequoia-wallpaper >/dev/null 2>&1; then
+  hyprsequoia-wallpaper &
+  wallpaper_pid=$!
+  sleep 0.2
+  if ! kill -0 "$wallpaper_pid" 2>/dev/null; then
+    wait "$wallpaper_pid" || true
+    printf '%s\n' '[HyprSequoia] wallpaper helper exited during startup; inspect the latest wallpaper log.'
+  fi
+fi
+
+if command -v swaync-client >/dev/null 2>&1; then
+  swaync-client -R >/dev/null 2>&1 || true
+  swaync-client -rs >/dev/null 2>&1 || true
+fi
+
+pkill -x walker 2>/dev/null || true
+if [[ -x $HOME/.config/walker/scripts/spotlight-service.sh ]]; then
+  "$HOME/.config/walker/scripts/spotlight-service.sh" &
+fi
+
+# Restart all Waybar surfaces so layout changes apply, then restore the top bar
+# before the Dock wrapper starts its selected backend.
+pkill -x waybar 2>/dev/null || true
+sleep 0.2
+if command -v waybar >/dev/null 2>&1; then
+  waybar -c "$HOME/.config/waybar/config.jsonc" -s "$HOME/.config/waybar/style.css" &
+fi
+
+if [[ -x $HOME/.config/dock/scripts/dock.sh ]]; then
+  "$HOME/.config/dock/scripts/dock.sh" restart || true
+fi
+
+if command -v notify-send >/dev/null 2>&1; then
+  notify-send 'HyprSequoia' 'Wallpaper, menu bar, Control Center, and Dock refreshed.' || true
+fi
+printf '[HyprSequoia] refresh complete; log: %s\n' "$log"

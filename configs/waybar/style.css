@@ -4,22 +4,23 @@
 * {
   border: none;
   border-radius: 0;
-  font-family: "SF Pro Display", "SF Pro Text", Inter, "JetBrainsMono Nerd Font", "Noto Sans CJK SC", sans-serif;
+  font-family: Inter, "Noto Sans CJK SC", "JetBrainsMono Nerd Font", sans-serif;
   font-size: 12px;
   font-weight: 500;
   min-height: 0;
 }
 window#waybar { background: transparent; color: @hs_text; text-shadow: 0 1px 3px @hs_shadow; }
-window#waybar > box { background: @hs_bar; border: none; box-shadow: none; margin: 0; padding: 0 7px; }
+window#waybar > box { background: @hs_bar; border: none; border-bottom: 1px solid @hs_border; box-shadow: 0 1px 12px @hs_shadow; margin: 0; padding: 0 7px; }
 tooltip { background: @hs_surface; border: 1px solid @hs_border_strong; border-radius: 14px; box-shadow: 0 12px 32px @hs_shadow, inset 0 1px rgba(255, 255, 255, 0.16); color: @hs_text; padding: 8px 11px; }
+tooltip label { color: @hs_text; }
 
 #custom-apple, #window, #custom-menu-file, #custom-menu-edit, #custom-menu-view, #custom-menu-window, #custom-menu-help,
 #language, #custom-clipboard, #custom-bluetooth, #network, #custom-vpn, #custom-brightness, #pulseaudio,
 #pulseaudio.microphone, #battery, #custom-calendar, #clock, #custom-notifications, #custom-control-center {
   color: @hs_text; margin: 2px 1px; padding: 0 8px; transition-property: background-color, color; transition-duration: 180ms;
 }
-#custom-apple { color: @hs_accent; font-size: 17px; font-weight: 700; padding-left: 10px; padding-right: 10px; }
-#window { color: @hs_text_muted; font-weight: 600; margin-left: 3px; max-width: 170px; }
+#custom-apple { color: @hs_text; font-size: 17px; font-weight: 700; padding-left: 10px; padding-right: 10px; }
+#window { color: @hs_text; font-weight: 600; margin-left: 3px; }
 #custom-menu-file, #custom-menu-edit, #custom-menu-view, #custom-menu-window, #custom-menu-help { padding-left: 7px; padding-right: 7px; }
 #window.center { color: @hs_text_muted; font-size: 11px; font-weight: 600; }
 

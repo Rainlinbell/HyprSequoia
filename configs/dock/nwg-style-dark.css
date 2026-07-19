@@ -1,8 +1,7 @@
 /* Dark Tahoe Liquid Glass palette for the native Dock backend. */
-* { font-family: "SF Pro Display", "SF Pro Text", Inter, "JetBrainsMono Nerd Font", sans-serif; font-size: 13px; }
+* { font-family: Inter, "JetBrainsMono Nerd Font", sans-serif; font-size: 13px; }
 window { background: transparent; }
-box, #dock, .dock { background: rgba(24, 27, 35, 0.68); border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 26px; box-shadow: 0 16px 42px rgba(0, 0, 0, 0.46), inset 0 1px rgba(255, 255, 255, 0.18); padding: 8px 11px 9px; }
-#box { background: rgba(24, 27, 35, 0.68); border-radius: 26px; }
+window > box, #box, #dock, .dock { background: rgba(24, 27, 35, 0.68); border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 26px; box-shadow: 0 16px 42px rgba(0, 0, 0, 0.46), inset 0 1px rgba(255, 255, 255, 0.18); padding: 8px 11px 9px; }
 button { background: transparent; border: none; border-radius: 17px; padding: 4px 6px; color: #f7f8fb; transition-property: background-color, padding; transition-duration: 180ms; }
 button:hover { background: rgba(255, 255, 255, 0.18); box-shadow: inset 0 1px rgba(255, 255, 255, 0.18); padding: 0 10px; }
 button:checked, button.active, button:focus { background: rgba(120, 171, 255, 0.23); box-shadow: inset 0 -3px #78abff; }

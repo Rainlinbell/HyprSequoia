@@ -197,11 +197,10 @@ errors:
 waybar -c ~/.config/waybar/config.jsonc -s ~/.config/waybar/style.css
 ```
 
-The wallpaper helper rasterizes the bundled SVG to
+The wallpaper helper loads the bundled `tahoe.png` directly. If that asset is
+missing, it rasterizes the original SVG fallback to
 `~/.cache/hyprsequoia/default.png` with `rsvg-convert` (ImageMagick is a
-fallback) before starting hyprpaper. The installer includes `librsvg`; failed
-or zero-byte cached images are regenerated. Reload Hyprland with `hyprctl
-reload` after config edits.
+fallback). Reload Hyprland with `hyprctl reload` after config edits.
 
 The installer includes the official `nwg-dock-hyprland` backend for native,
 clickable launchers. Every Dock backend now starts in permanent resident mode;

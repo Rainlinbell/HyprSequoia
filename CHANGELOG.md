@@ -6,6 +6,12 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ### Added
 
+- Original Tahoe alpine-lake PNG wallpaper designed for translucent desktop
+  surfaces, with the existing SVG retained as a converter fallback.
+- Stable desktop-entry fallback proxies and a bounded
+  `hyprsequoia-dock-launch` bridge into the project launcher fallbacks.
+- `hyprsequoia-refresh` for applying menu-bar, Control Center, Spotlight,
+  wallpaper, and Dock changes to an active HyprSequoia session.
 - Tahoe Liquid Glass appearance system spanning the transparent menu bar,
   resident Dock, Control Center, Notification Center, Spotlight, lock screen,
   terminal, Hyprland decoration, and dark/light palettes.
@@ -40,6 +46,10 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ### Changed
 
+- Install the official `inter-font`, `adw-gtk-theme`, and Papirus icons; use
+  Inter for desktop UI text and compact the menu-bar status cluster.
+- Install Firefox and, when no compatible editor already exists, the official
+  Code build with the full profile; retain proxy fallbacks for minimal profiles.
 - Run every Dock backend in permanent resident mode and make `Super+B` a
   recovery/show action instead of an auto-hide toggle.
 - Route Apple-menu Settings and Dock Settings through the unified HyprSequoia
@@ -52,6 +62,14 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ### Fixed
 
+- Stage Go `nwg-dock-hyprland` CSS in its real XDG configuration directory,
+  scope glass styling to the Dock root, and migrate historical pins to an
+  installed client ID or guaranteed launch proxy so clicks no longer silently
+  execute missing commands.
+- Start one Go Dock instance per detected output, track every PID, honor XDG
+  cache/data locations, and send visibility signals directly to owned PIDs.
+- Match current SwayNC GTK4 button, calendar, media, and notification nodes and
+  constrain the two-column Control Center to low-resolution displays.
 - Retry one failed updater fetch over HTTP/1.1 without disabling TLS
   verification, covering intermittent GitHub `SSL_read` disconnects.
 - Install the official Hyprland-native Dock by default; make the Waybar fallback

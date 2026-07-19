@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Visual Studio Code
+Comment=Open the configured code editor
+Exec=hyprsequoia-dock-launch code
+Icon=visual-studio-code
+Terminal=false
+Categories=Development;IDE;
+NoDisplay=true
+StartupNotify=true

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Files
+Comment=Open the home folder
+Exec=hyprsequoia-dock-launch files
+Icon=folder
+Terminal=false
+Categories=System;FileTools;FileManager;
+NoDisplay=true
+StartupNotify=true

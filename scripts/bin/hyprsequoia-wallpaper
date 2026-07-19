@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Start hyprpaper with a current-format config and a safe SVG fallback.
+# Start hyprpaper with the project PNG and a safe SVG fallback.
 set -u
 export PATH="$HOME/.local/bin:$PATH"
 
@@ -8,7 +8,8 @@ log_dir="$state_dir/logs"
 cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/hyprsequoia"
 mkdir -p "$log_dir" "$cache_dir"
 log="$log_dir/wallpaper-$(date +%Y%m%d-%H%M%S).log"
-source_image="$HOME/.config/hypr/wallpapers/default.svg"
+source_image="$HOME/.config/hypr/wallpapers/tahoe.png"
+[[ -r $source_image ]] || source_image="$HOME/.config/hypr/wallpapers/default.svg"
 image="$source_image"
 
 if [[ ! -r $source_image ]]; then

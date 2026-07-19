@@ -8,6 +8,7 @@
 @define-color cc_tile_hover rgba(255, 255, 255, 0.17);
 @define-color cc_tile_border rgba(255, 255, 255, 0.10);
 @define-color cc_notification rgba(255, 255, 255, 0.075);
+@define-color cc_media_overlay rgba(0, 0, 0, 0.34);
 @define-color cc_track rgba(255, 255, 255, 0.18);
 @define-color cc_slider #ffffff;
 @define-color cc_accent rgba(43, 124, 255, 0.82);

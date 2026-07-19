@@ -24,6 +24,13 @@ The launcher uses this order:
    CSS, and multiple outputs. It does not provide the Rust
    backend's drag ordering, launch animation, or pointer magnification.
 
+Native favorites resolve to the installed application's real client ID so a
+running window merges with its pin and receives the active indicator. If an
+application is absent, the same position resolves to a project-owned desktop
+proxy such as `hyprsequoia-firefox`; it calls `hyprsequoia-dock-launch` and the
+fallback-aware launcher used by the Waybar backend. Existing pin caches are
+migrated atomically at startup, including aliases from earlier releases.
+
 3. **Waybar `wlr/taskbar`** — the last-resort fallback already installed by
    HyprSequoia. It supplies static launchers, running task buttons, active
    indicators, a recent-app menu, Trash, and hover scaling. It remains visible
@@ -48,6 +55,7 @@ requiring an AUR helper. See the upstream feature and configuration reference:
 - `configs/dock/nwg-style.css` — native backend dark GTK style
 - `configs/dock/scripts/dock.sh` — backend detection and lifecycle commands
 - `configs/dock/scripts/launch.sh` — app launch mapping and recent history
+- `scripts/bin/hyprsequoia-dock-launch` — stable native desktop-entry bridge
 - `configs/dock/scripts/reorder.sh` — fallback favorites and native pin sync
 - `configs/dock/favorites.list` — default fallback favorites order
 
@@ -67,7 +75,8 @@ controls are:
 The native Rust dock supports direct drag-to-reorder and drag-off-to-remove.
 On the Waybar fallback, right-click any favorite and use the reorder menu; the
 result is saved to `~/.config/dock/favorites.list` and synchronized to the
-shared native pin file at `~/.cache/mac-dock-pinned`.
+Rust backend pin file at `~/.cache/mac-dock-pinned` and the Go backend pin file
+below `$XDG_CACHE_HOME` when set (otherwise `~/.cache/nwg-dock-pinned`).
 
 Favorite launches are stored, newest first, in
 `~/.local/state/hyprsequoia/dock/recent`. The list is bounded and contains only

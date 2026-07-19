@@ -20,6 +20,7 @@ HyprSequoia is a maintainable desktop distribution layer—not a collection of p
 - SwayNC Control and Notification Center with Wi-Fi, Bluetooth, appearance, Night Shift, brightness, volume, media, and calendar controls
 - Bottom resident Tahoe Dock with running indicators, favorites, recents, and multi-monitor support
 - Unified HyprSequoia System Settings hub and cross-component light/dark appearance
+- Original Tahoe alpine-lake wallpaper, Inter typography, coherent GTK/icon themes, and live desktop refresh
 - Hyprlock blurred lock screen and Hypridle automatic locking
 - PipeWire audio, NetworkManager, Bluetooth, brightness, and screenshot integration
 - Full, minimal, Chinese, NVIDIA, AMD, and Intel installation profiles
@@ -74,6 +75,8 @@ After installation:
 2. Select **HyprSequoia** from the SDDM session menu (do not select the UWSM-managed entry when `uwsm` is absent).
 3. Sign in with your existing account.
 4. Press `Super` + `Space` to test Walker, then test the network, Bluetooth, volume, and notification items in the menu bar.
+
+After upgrading an older release, run `hyprsequoia-refresh` to apply the new interface immediately, or log out and enter HyprSequoia again.
 
 KDE is not removed by default. Keep it as a fallback until HyprSequoia meets your daily needs, then run `./uninstall-kde.sh` if desired.
 

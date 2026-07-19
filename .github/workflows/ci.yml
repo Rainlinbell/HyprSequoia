@@ -27,6 +27,7 @@ jobs:
           python -c 'import tomllib, pathlib; tomllib.loads(pathlib.Path("configs/walker/config.toml").read_text())'
           python -c 'import pathlib, xml.etree.ElementTree as ET; [ET.parse(path) for path in pathlib.Path("configs/walker/themes").rglob("*.xml")]'
           python -c 'import pathlib, xml.etree.ElementTree as ET; [ET.parse(path) for path in pathlib.Path("configs/hypr/wallpapers").rglob("*.svg")]'
+          python -c 'import pathlib, struct; p=pathlib.Path("configs/hypr/wallpapers/tahoe.png"); b=p.read_bytes(); assert b[:8] == b"\x89PNG\r\n\x1a\n"; w,h=struct.unpack(">II", b[16:24]); assert w >= 1600 and h >= 900 and len(b) < 10_000_000, (w,h,len(b))'
       - name: Validate desktop entries
         run: desktop-file-validate configs/applications/*.desktop
       - name: Reject trailing whitespace

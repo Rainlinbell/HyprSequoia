@@ -19,6 +19,16 @@ corners, restrained blue accents, and short ease-out transitions.
   palette, search field geometry, selection treatment, and preview material.
 - Hyprlock, Kitty, Hyprland windows, shadows, blur, and animation curves use
   matching spacing, radius, opacity, and accent values.
+- The default `tahoe.png` is an original alpine-lake wallpaper generated for
+  this project; it is not an Apple wallpaper or a reproduction of one.
+
+Inter is installed from the Arch official repository and is the primary UI
+font. Noto Sans CJK provides Chinese fallback, while JetBrainsMono Nerd Font is
+reserved for icon glyphs and terminal content.
+
+GTK applications use the matching light/dark `adw-gtk3` palette with Papirus
+icons and the Bibata Ice cursor. This keeps third-party toolkit windows
+coherent without bundling or copying Apple themes or proprietary assets.
 
 Linux applications keep their own toolkit layout. HyprSequoia sets the GTK
 light/dark preference but does not overwrite application-specific themes or
@@ -45,6 +55,12 @@ hyprsequoia-settings
 ```
 
 `Super` + `Shift` + `C` opens Control Center directly.
+
+To reapply every running surface without logging out:
+
+```bash
+hyprsequoia-refresh
+```
 
 ## Customization
 

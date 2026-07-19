@@ -2,7 +2,7 @@
 
 * {
   all: unset;
-  font-family: "SF Pro Display", "SF Pro Text", Inter, "JetBrainsMono Nerd Font", Cantarell, sans-serif;
+  font-family: Inter, "Noto Sans CJK SC", "JetBrainsMono Nerd Font", Cantarell, sans-serif;
 }
 
 window { background: transparent; }

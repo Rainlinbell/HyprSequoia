@@ -4,7 +4,7 @@
 * {
   border: none;
   border-radius: 0;
-  font-family: "SF Pro Display", "SF Pro Text", Inter, "JetBrainsMono Nerd Font", "Noto Sans CJK SC", sans-serif;
+  font-family: Inter, "Noto Sans CJK SC", "JetBrainsMono Nerd Font", sans-serif;
   font-size: 13px;
   min-height: 0;
 }

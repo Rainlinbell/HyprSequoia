@@ -38,27 +38,42 @@ apply_palette "$HOME/.config/walker/themes/sequoia/theme-$next.css" "$HOME/.conf
 printf '%s\n' "$next" >"$state_file"
 printf '%s\n' "$next" >"$state_dir/waybar-theme"
 
+if [[ $next == dark ]]; then
+  gtk_theme=adw-gtk3-dark
+  icon_theme=Papirus-Dark
+  color_scheme=prefer-dark
+else
+  gtk_theme=adw-gtk3
+  icon_theme=Papirus
+  color_scheme=prefer-light
+fi
+
 if command -v gsettings >/dev/null 2>&1; then
-  if [[ $next == dark ]]; then
-    gsettings set org.gnome.desktop.interface color-scheme prefer-dark 2>/dev/null || true
-  else
-    gsettings set org.gnome.desktop.interface color-scheme prefer-light 2>/dev/null || true
-  fi
+  gsettings set org.gnome.desktop.interface font-name 'Inter 11' 2>/dev/null || true
+  gsettings set org.gnome.desktop.interface monospace-font-name 'JetBrainsMono Nerd Font 11' 2>/dev/null || true
+  gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Ice' 2>/dev/null || true
+  gsettings set org.gnome.desktop.interface gtk-theme "$gtk_theme" 2>/dev/null || true
+  gsettings set org.gnome.desktop.interface icon-theme "$icon_theme" 2>/dev/null || true
+  gsettings set org.gnome.desktop.interface color-scheme "$color_scheme" 2>/dev/null || true
 fi
 
 if command -v hyprctl >/dev/null 2>&1; then
   if [[ $next == dark ]]; then
-    hyprctl keyword general:col.active_border 'rgba(78abffff)' >/dev/null 2>&1 || true
-    hyprctl keyword general:col.inactive_border 'rgba(ffffff20)' >/dev/null 2>&1 || true
+    hyprctl keyword general:col.active_border 'rgba(ffffff4d)' >/dev/null 2>&1 || true
+    hyprctl keyword general:col.inactive_border 'rgba(ffffff18)' >/dev/null 2>&1 || true
   else
-    hyprctl keyword general:col.active_border 'rgba(176fe5ff)' >/dev/null 2>&1 || true
-    hyprctl keyword general:col.inactive_border 'rgba(20232a24)' >/dev/null 2>&1 || true
+    hyprctl keyword general:col.active_border 'rgba(20232a38)' >/dev/null 2>&1 || true
+    hyprctl keyword general:col.inactive_border 'rgba(20232a1c)' >/dev/null 2>&1 || true
   fi
 fi
 
 killall -SIGUSR2 waybar 2>/dev/null || true
 if command -v swaync-client >/dev/null 2>&1; then
   swaync-client -rs >/dev/null 2>&1 || true
+fi
+pkill -x walker 2>/dev/null || true
+if [[ -x $HOME/.config/walker/scripts/spotlight-service.sh ]]; then
+  "$HOME/.config/walker/scripts/spotlight-service.sh" >/dev/null 2>&1 &
 fi
 if [[ -x $HOME/.config/dock/scripts/dock.sh ]]; then
   "$HOME/.config/dock/scripts/dock.sh" restart >/dev/null 2>&1 || true

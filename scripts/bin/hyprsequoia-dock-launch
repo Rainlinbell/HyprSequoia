@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Stable desktop-entry bridge for native Dock pinned buttons.
+set -Eeuo pipefail
+
+case ${1:-} in
+  finder|firefox|code|terminal|files|settings) app=$1 ;;
+  *) printf 'Usage: %s {finder|firefox|code|terminal|files|settings}\n' "$0" >&2; exit 2 ;;
+esac
+
+launcher="$HOME/.config/dock/scripts/launch.sh"
+if [[ ! -x $launcher ]]; then
+  if command -v notify-send >/dev/null 2>&1; then
+    notify-send 'HyprSequoia Dock' 'Dock launcher is not installed.' || true
+  fi
+  exit 1
+fi
+exec "$launcher" "$app"

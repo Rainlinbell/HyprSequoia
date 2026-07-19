@@ -43,7 +43,7 @@ case $app in
   firefox) record_recent firefox; run_first firefox 'xdg-open https://www.mozilla.org/firefox/' || notify 'Dock' 'Firefox is not installed.';;
   code) record_recent code; run_first code codium 'kitty -e nvim' || notify 'Dock' 'VS Code, Codium, or Neovim is not installed.';;
   terminal) record_recent terminal; run_first kitty foot alacritty || notify 'Dock' 'No supported terminal is installed.';;
-  settings) record_recent settings; run_first systemsettings gnome-control-center 'kitty -e nmtui' || notify 'Dock' 'No settings application is installed.';;
+  settings) record_recent settings; run_first hyprsequoia-settings systemsettings gnome-control-center 'kitty -e nmtui' || notify 'Dock' 'No settings application is installed.';;
   *) notify 'Dock' "Unknown application: $app";;
 esac
 pkill -RTMIN+8 -x waybar 2>/dev/null || true

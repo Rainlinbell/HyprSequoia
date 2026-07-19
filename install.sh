@@ -378,6 +378,20 @@ deploy() {
   for component in hypr waybar kitty walker swaync dock; do
     install_tree "$ROOT/configs/$component" "$HOME/.config/$component"
   done
+  # Preserve the selected Tahoe appearance across upgrades. Theme source files
+  # remain immutable; only the generated theme.css entry points are replaced.
+  local appearance=dark
+  if [[ -r $HS_STATE_HOME/appearance ]]; then
+    IFS= read -r appearance <"$HS_STATE_HOME/appearance"
+  elif [[ -r $HS_STATE_HOME/waybar-theme ]]; then
+    IFS= read -r appearance <"$HS_STATE_HOME/waybar-theme"
+  fi
+  [[ $appearance == light ]] || appearance=dark
+  cp -- "$HOME/.config/waybar/theme-$appearance.css" "$HOME/.config/waybar/theme.css"
+  cp -- "$HOME/.config/dock/theme-$appearance.css" "$HOME/.config/dock/theme.css"
+  cp -- "$HOME/.config/dock/nwg-style-$appearance.css" "$HOME/.config/dock/nwg-style.css"
+  cp -- "$HOME/.config/swaync/theme-$appearance.css" "$HOME/.config/swaync/theme.css"
+  cp -- "$HOME/.config/walker/themes/sequoia/theme-$appearance.css" "$HOME/.config/walker/themes/sequoia/theme.css"
   # local.conf is intentionally a user-owned extension point. Keep the copy
   # from the backup when reinstalling instead of replacing personal overrides
   # with the empty project template.
@@ -399,6 +413,12 @@ deploy() {
   for script in "$ROOT/scripts/bin/"*; do
     install -Dm755 "$script" "$HOME/.local/bin/$(basename "$script")"
     printf '%s\n' "$HOME/.local/bin/$(basename "$script")" >>"$HS_MANIFEST"
+  done
+  local desktop
+  for desktop in "$ROOT/configs/applications/"*.desktop; do
+    [[ -r $desktop ]] || continue
+    install -Dm644 "$desktop" "$HOME/.local/share/applications/$(basename "$desktop")"
+    printf '%s\n' "$HOME/.local/share/applications/$(basename "$desktop")" >>"$HS_MANIFEST"
   done
   sed -i "s/__GPU_PROFILE__/$HS_GPU/" "$HOME/.config/hypr/conf.d/10-environment.conf"
   configure_gpu_environment

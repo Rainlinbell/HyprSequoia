@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# State adapter used by SwayNC Control Center toggle buttons.
+set -Eeuo pipefail
+
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/hyprsequoia"
+mkdir -p "$state_dir"
+
+bool_value() {
+  case ${1:-toggle} in
+    true|on|1|enable|enabled) printf 'true\n' ;;
+    false|off|0|disable|disabled) printf 'false\n' ;;
+    *) printf 'toggle\n' ;;
+  esac
+}
+
+wifi_state() {
+  command -v nmcli >/dev/null 2>&1 || { printf 'false\n'; return; }
+  [[ $(nmcli radio wifi 2>/dev/null || true) == enabled ]] && printf 'true\n' || printf 'false\n'
+}
+
+bluetooth_state() {
+  command -v bluetoothctl >/dev/null 2>&1 || { printf 'false\n'; return; }
+  bluetoothctl show 2>/dev/null | grep -q 'Powered: yes' && printf 'true\n' || printf 'false\n'
+}
+
+set_radio() {
+  local service=$1 requested current desired
+  requested=$(bool_value "${2:-toggle}")
+  if [[ $service == wifi ]]; then current=$(wifi_state); else current=$(bluetooth_state); fi
+  if [[ $requested == toggle ]]; then
+    [[ $current == true ]] && desired=false || desired=true
+  else
+    desired=$requested
+  fi
+  if [[ $service == wifi ]]; then
+    command -v nmcli >/dev/null 2>&1 || exit 0
+    if [[ $desired == true ]]; then nmcli radio wifi on; else nmcli radio wifi off; fi
+  else
+    command -v bluetoothctl >/dev/null 2>&1 || exit 0
+    if [[ $desired == true ]]; then bluetoothctl power on >/dev/null; else bluetoothctl power off >/dev/null; fi
+  fi
+}
+
+case ${1:-} in
+  wifi)
+    if [[ ${2:-} == status ]]; then wifi_state; else set_radio wifi "${2:-toggle}"; fi
+    ;;
+  bluetooth)
+    if [[ ${2:-} == status ]]; then bluetooth_state; else set_radio bluetooth "${2:-toggle}"; fi
+    ;;
+  theme)
+    if [[ ${2:-} == status ]]; then
+      [[ $(hyprsequoia-theme status 2>/dev/null || printf dark) == dark ]] && printf 'true\n' || printf 'false\n'
+    else
+      requested=$(bool_value "${2:-toggle}")
+      if [[ $requested == true ]]; then hyprsequoia-theme dark
+      elif [[ $requested == false ]]; then hyprsequoia-theme light
+      else hyprsequoia-theme toggle; fi
+    fi
+    ;;
+  night-shift)
+    state_file="$state_dir/night-shift"
+    current=false
+    [[ -r $state_file && $(<"$state_file") == true ]] && current=true
+    if [[ ${2:-} == status ]]; then
+      printf '%s\n' "$current"
+      exit 0
+    fi
+    desired=$(bool_value "${2:-toggle}")
+    if [[ $desired == toggle ]]; then [[ $current == true ]] && desired=false || desired=true; fi
+    if ! command -v gammastep >/dev/null 2>&1; then
+      if command -v notify-send >/dev/null 2>&1; then
+        notify-send 'Night Shift' 'gammastep is not installed.' || true
+      fi
+      exit 0
+    fi
+    if [[ $desired == true ]]; then gammastep -O 4000 >/dev/null 2>&1 || true
+    else gammastep -x >/dev/null 2>&1 || true; fi
+    printf '%s\n' "$desired" >"$state_file"
+    ;;
+  *) printf 'Usage: %s {wifi|bluetooth|theme|night-shift} [status|true|false|toggle]\n' "$0" >&2; exit 2 ;;
+esac

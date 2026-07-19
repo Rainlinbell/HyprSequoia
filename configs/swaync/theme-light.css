@@ -1,0 +1,19 @@
+/* Light Tahoe Control Center palette. */
+@define-color cc_glass rgba(246, 249, 255, 0.76);
+@define-color cc_glass_strong rgba(255, 255, 255, 0.95);
+@define-color cc_border rgba(255, 255, 255, 0.82);
+@define-color cc_highlight rgba(255, 255, 255, 0.78);
+@define-color cc_shadow rgba(28, 40, 68, 0.28);
+@define-color cc_tile rgba(255, 255, 255, 0.42);
+@define-color cc_tile_hover rgba(255, 255, 255, 0.66);
+@define-color cc_tile_border rgba(255, 255, 255, 0.60);
+@define-color cc_notification rgba(255, 255, 255, 0.36);
+@define-color cc_track rgba(32, 35, 42, 0.16);
+@define-color cc_slider #ffffff;
+@define-color cc_accent rgba(23, 111, 229, 0.86);
+@define-color cc_accent_border rgba(255, 255, 255, 0.52);
+@define-color cc_accent_solid #176fe5;
+@define-color cc_accent_text #ffffff;
+@define-color cc_text #20232a;
+@define-color cc_muted rgba(32, 35, 42, 0.68);
+@define-color cc_subtle rgba(32, 35, 42, 0.46);

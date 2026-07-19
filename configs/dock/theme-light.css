@@ -1,13 +1,13 @@
-/* Light Sequoia glass palette for the dock. */
-@define-color dock_surface rgba(250, 250, 252, 0.84);
-@define-color dock_tooltip rgba(255, 255, 255, 0.97);
-@define-color dock_border rgba(30, 30, 36, 0.16);
-@define-color dock_shadow rgba(32, 32, 42, 0.25);
-@define-color dock_hover rgba(30, 30, 36, 0.09);
-@define-color dock_active rgba(40, 103, 199, 0.14);
-@define-color dock_text #25252b;
-@define-color dock_muted rgba(37, 37, 43, 0.62);
-@define-color dock_icon #25252b;
-@define-color dock_icon_active #111116;
-@define-color dock_accent #2867c7;
-@define-color dock_indicator #2867c7;
+/* Light Tahoe Liquid Glass palette for the resident Dock. */
+@define-color dock_surface rgba(246, 249, 255, 0.66);
+@define-color dock_tooltip rgba(255, 255, 255, 0.94);
+@define-color dock_border rgba(255, 255, 255, 0.74);
+@define-color dock_shadow rgba(28, 40, 68, 0.28);
+@define-color dock_hover rgba(255, 255, 255, 0.58);
+@define-color dock_active rgba(31, 111, 235, 0.16);
+@define-color dock_text #20232a;
+@define-color dock_muted rgba(32, 35, 42, 0.64);
+@define-color dock_icon #20232a;
+@define-color dock_icon_active #0b0c10;
+@define-color dock_accent #176fe5;
+@define-color dock_indicator #176fe5;

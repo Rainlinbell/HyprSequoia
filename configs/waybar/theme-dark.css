@@ -1,4 +1,4 @@
-/* Default dark Tahoe palette. The menu bar itself remains transparent. */
+/* Dark Tahoe palette. The menu bar itself remains transparent. */
 @define-color hs_bar rgba(0, 0, 0, 0);
 @define-color hs_surface rgba(28, 31, 40, 0.76);
 @define-color hs_border rgba(255, 255, 255, 0.20);

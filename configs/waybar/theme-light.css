@@ -1,14 +1,14 @@
-/* Light Sequoia palette selected by theme.sh. */
-@define-color hs_bar rgba(250, 250, 252, 0.78);
-@define-color hs_surface rgba(255, 255, 255, 0.96);
-@define-color hs_border rgba(30, 30, 36, 0.14);
-@define-color hs_border_strong rgba(30, 30, 36, 0.23);
-@define-color hs_shadow rgba(32, 32, 42, 0.22);
-@define-color hs_hover rgba(30, 30, 36, 0.09);
-@define-color hs_text #25252b;
-@define-color hs_text_strong #111116;
-@define-color hs_text_muted rgba(37, 37, 43, 0.72);
-@define-color hs_text_subtle rgba(37, 37, 43, 0.44);
-@define-color hs_accent #2867c7;
+/* Light Tahoe palette selected by the unified theme controller. */
+@define-color hs_bar rgba(0, 0, 0, 0);
+@define-color hs_surface rgba(248, 250, 255, 0.78);
+@define-color hs_border rgba(255, 255, 255, 0.66);
+@define-color hs_border_strong rgba(255, 255, 255, 0.82);
+@define-color hs_shadow rgba(30, 40, 64, 0.24);
+@define-color hs_hover rgba(255, 255, 255, 0.54);
+@define-color hs_text #20232a;
+@define-color hs_text_strong #0b0c10;
+@define-color hs_text_muted rgba(32, 35, 42, 0.74);
+@define-color hs_text_subtle rgba(32, 35, 42, 0.46);
+@define-color hs_accent #176fe5;
 @define-color hs_warning #9a6500;
 @define-color hs_critical #c7354c;

@@ -1,11 +1,11 @@
-/* Light Sequoia GTK4 palette for the native dock backend. */
-* { font-family: "SF Pro Display", "SF Pro Text", Inter, sans-serif; font-size: 13px; }
+/* Light Tahoe Liquid Glass palette for the native Dock backend. */
+* { font-family: "SF Pro Display", "SF Pro Text", Inter, "JetBrainsMono Nerd Font", sans-serif; font-size: 13px; }
 window { background: transparent; }
-box, #dock, .dock { background: rgba(250, 250, 252, 0.86); border: 1px solid rgba(30, 30, 36, 0.16); border-radius: 22px; box-shadow: 0 12px 34px rgba(32, 32, 42, 0.25); padding: 7px 10px 8px; }
-#box { background: rgba(250, 250, 252, 0.86); border-radius: 22px; }
-button { background: transparent; border: none; border-radius: 14px; padding: 4px 6px; color: #25252b; transition-property: background-color, padding; transition-duration: 160ms; }
-button:hover { background: rgba(30, 30, 36, 0.09); padding: 0 10px; }
-button:checked, button.active, button:focus { background: rgba(40, 103, 199, 0.14); box-shadow: inset 0 -3px #2867c7; }
-#active { background: rgba(40, 103, 199, 0.14); box-shadow: inset 0 -3px #2867c7; border-radius: 14px; }
+box, #dock, .dock { background: rgba(246, 249, 255, 0.66); border: 1px solid rgba(255, 255, 255, 0.74); border-radius: 26px; box-shadow: 0 16px 42px rgba(28, 40, 68, 0.28), inset 0 1px rgba(255, 255, 255, 0.72); padding: 8px 11px 9px; }
+#box { background: rgba(246, 249, 255, 0.66); border-radius: 26px; }
+button { background: transparent; border: none; border-radius: 17px; padding: 4px 6px; color: #20232a; transition-property: background-color, padding; transition-duration: 180ms; }
+button:hover { background: rgba(255, 255, 255, 0.58); box-shadow: inset 0 1px rgba(255, 255, 255, 0.72); padding: 0 10px; }
+button:checked, button.active, button:focus { background: rgba(31, 111, 235, 0.16); box-shadow: inset 0 -3px #176fe5; }
+#active { background: rgba(31, 111, 235, 0.16); box-shadow: inset 0 -3px #176fe5; border-radius: 17px; }
 button image { -gtk-icon-transform: scale(1); }
 button:hover image { -gtk-icon-transform: scale(1.25); }

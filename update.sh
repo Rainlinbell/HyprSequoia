@@ -33,7 +33,11 @@ git -C "$ROOT" remote get-url "$remote" >/dev/null 2>&1 \
 
 before=$(git -C "$ROOT" rev-parse --short=12 HEAD)
 info "Checking $remote/$remote_branch for updates (local branch: $current_branch)."
-git -C "$ROOT" fetch --prune "$remote" "$remote_branch"
+if ! git -C "$ROOT" fetch --prune "$remote" "$remote_branch"; then
+  warn "The first Git fetch failed; retrying once with HTTPS over HTTP/1.1."
+  warn "TLS certificate verification remains enabled."
+  git -C "$ROOT" -c http.version=HTTP/1.1 fetch --prune "$remote" "$remote_branch"
+fi
 git -C "$ROOT" merge --ff-only FETCH_HEAD
 after=$(git -C "$ROOT" rev-parse --short=12 HEAD)
 

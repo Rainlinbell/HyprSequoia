@@ -4,7 +4,7 @@ set -Eeuo pipefail
 
 options=$(cat <<'EOF'
 Lock Screen
-Toggle Dock
+Show Dock
 Toggle Light / Dark Mode
 Reload Hyprland
 Reload Waybar
@@ -15,13 +15,14 @@ EOF
 choice=$(printf '%s\n' "$options" | walker --dmenu --prompt 'Quick actions' || true)
 case "$choice" in
   'Lock Screen') loginctl lock-session ;;
-  'Toggle Dock') "$HOME/.config/dock/scripts/dock.sh" toggle ;;
-  'Toggle Light / Dark Mode') "$HOME/.config/waybar/scripts/theme.sh" toggle ;;
+  'Show Dock') "$HOME/.config/dock/scripts/dock.sh" show ;;
+  'Toggle Light / Dark Mode') hyprsequoia-theme toggle ;;
   'Reload Hyprland') hyprctl reload ;;
   'Reload Waybar') pkill -USR2 -x waybar 2>/dev/null || true ;;
   'Region Screenshot') hyprsequoia-screenshot region ;;
   'Open System Settings')
-    if command -v systemsettings >/dev/null 2>&1; then systemsettings &
+    if command -v hyprsequoia-settings >/dev/null 2>&1; then hyprsequoia-settings &
+    elif command -v systemsettings >/dev/null 2>&1; then systemsettings &
     elif command -v gnome-control-center >/dev/null 2>&1; then gnome-control-center &
     fi
     ;;

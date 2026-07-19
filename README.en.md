@@ -4,21 +4,22 @@
 
 # HyprSequoia
 
-An original, modular Hyprland desktop experience for Arch Linux, inspired by macOS Sequoia.
+An original, modular Hyprland desktop experience for Arch Linux, visually inspired by macOS Tahoe.
 
 </div>
 
 HyprSequoia is a maintainable desktop distribution layer—not a collection of personal dotfiles. It provides guided installation, configuration backups, failure rollback, updates, and restoration for Arch Linux users, KDE migrants, and Linux newcomers.
 
-> **Project status: v0.1 foundation.** The Hyprland session, installer, backup and restore, menu bar, launcher, notifications, lock screen, wallpaper, and daily hardware integrations are functional. Full Dock interaction (drag ordering, launch bounce, and native multi-monitor hotspots) is available with the optional Rust backend; systems without it use the lightweight fallback. A unified Control Center, automatic light/dark scheduling, and a graphical installer remain roadmap items.
+> **Project status: v0.1 foundation.** The Hyprland session, installer, backup and restore, Tahoe menu bar, resident Dock, Spotlight, unified Control Center, System Settings hub, notifications, light/dark appearance, lock screen, wallpaper, and daily hardware integrations are functional. Full Dock drag ordering and launch bounce remain available through the optional Rust backend; a graphical installer remains a roadmap item.
 
 ## Features
 
 - Modular Hyprland configuration with separate input, appearance, rules, bindings, and autostart modules
-- macOS-inspired menu bar with workspaces, network, Bluetooth, volume, battery, clock, and notifications
-- Sequoia-style Spotlight for apps, files, calculations, unit/currency conversion, clipboard, emoji, recents, settings, and quick actions
-- SwayNC notifications and media controls
-- Bottom Sequoia Dock with auto-hide, running indicators, favorites, recents, and multi-monitor support
+- Tahoe-style transparent menu bar with network, Bluetooth, volume, battery, clock, notifications, and Control Center
+- Tahoe Liquid Glass Spotlight for apps, files, calculations, unit/currency conversion, clipboard, emoji, recents, settings, and quick actions
+- SwayNC Control and Notification Center with Wi-Fi, Bluetooth, appearance, Night Shift, brightness, volume, media, and calendar controls
+- Bottom resident Tahoe Dock with running indicators, favorites, recents, and multi-monitor support
+- Unified HyprSequoia System Settings hub and cross-component light/dark appearance
 - Hyprlock blurred lock screen and Hypridle automatic locking
 - PipeWire audio, NetworkManager, Bluetooth, brightness, and screenshot integration
 - Full, minimal, Chinese, NVIDIA, AMD, and Intel installation profiles
@@ -86,11 +87,13 @@ KDE is not removed by default. Keep it as a fallback until HyprSequoia meets you
 | Spotlight quick actions | `Super` + `Shift` + `A` |
 | Terminal | `Super` + `Enter` |
 | File manager | `Super` + `E` |
+| System Settings | `Super` + `,` |
+| Control Center | `Super` + `Shift` + `C` |
 | Lock screen | `Super` + `L` |
 | Close the active window | `Super` + `Q` |
 | Toggle fullscreen | `Super` + `F` |
 | Toggle floating | `Super` + `V` |
-| Toggle the Dock | `Super` + `B` |
+| Show the Dock | `Super` + `B` |
 | Switch to workspace 1–4 | `Super` + `1`–`4` |
 | Move a window to workspace 1–4 | `Super` + `Shift` + `1`–`4` |
 | Region screenshot | `Print` |
@@ -107,7 +110,7 @@ cd HyprSequoia
 ./update.sh
 ```
 
-The updater requires a clean Git worktree and accepts fast-forward updates only. After pulling, it returns to the interactive installer and creates another backup before replacing configuration.
+The updater requires a clean Git worktree and accepts fast-forward updates only. If the first HTTPS fetch encounters a transient `SSL_read` disconnect, it retries once over HTTP/1.1 with certificate verification still enabled. After pulling, it returns to the interactive installer and creates another backup before replacing configuration.
 
 ### 6. Restore configuration
 
@@ -139,17 +142,19 @@ for theming, keyboard operation, and troubleshooting.
 
 ### Dock
 
-The Dock starts automatically with the Hyprland session. When the Rust
-`nwg-dock` binary is available, HyprSequoia uses the full native backend with
-drag ordering, launch bounce, and multi-monitor hotspots; otherwise it falls
-back to the Go backend or a lightweight Waybar implementation. See the [Dock
-documentation](docs/DOCK.md).
+The Dock starts in resident mode with the Hyprland session and no longer uses
+an auto-hide hotspot. When the Rust `nwg-dock` binary is available,
+HyprSequoia uses the full native backend with drag ordering and launch bounce;
+otherwise it falls back to the Go backend or a lightweight Waybar
+implementation. See the [Dock documentation](docs/DOCK.md) and [appearance
+guide](docs/APPEARANCE.md).
 
 ## Architecture
 
 - `configs/hypr/conf.d/`: independently owned compositor modules
 - `configs/sddm/`: HyprSequoia session entry backed by `start-hyprland`
 - `configs/{waybar,kitty,walker,swaync}/`: desktop application configuration
+- `configs/applications/`: HyprSequoia desktop application entries
 - `configs/dock/`: native-first bottom Dock and Waybar fallback configuration
 - `scripts/lib/`: shared installer and package primitives
 - `scripts/bin/`: runtime commands installed in `~/.local/bin`

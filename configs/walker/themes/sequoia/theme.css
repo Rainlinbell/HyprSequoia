@@ -1,0 +1,18 @@
+/* Dark Tahoe Spotlight palette. */
+@define-color window_bg_color #1d2028;
+@define-color panel_bg_color rgba(24, 27, 35, 0.78);
+@define-color panel_border rgba(255, 255, 255, 0.25);
+@define-color panel_highlight rgba(255, 255, 255, 0.16);
+@define-color panel_shadow rgba(0, 0, 0, 0.52);
+@define-color input_bg rgba(255, 255, 255, 0.10);
+@define-color item_border rgba(255, 255, 255, 0.10);
+@define-color preview_bg rgba(255, 255, 255, 0.065);
+@define-color accent_bg #78abff;
+@define-color accent_soft rgba(78, 145, 255, 0.24);
+@define-color accent_quiet rgba(78, 145, 255, 0.16);
+@define-color selected_border rgba(140, 188, 255, 0.46);
+@define-color theme_fg_color #f7f8fb;
+@define-color secondary_fg rgba(247, 248, 251, 0.66);
+@define-color calc_fg #bed7ff;
+@define-color error_bg #c94f62;
+@define-color error_fg #ffffff;

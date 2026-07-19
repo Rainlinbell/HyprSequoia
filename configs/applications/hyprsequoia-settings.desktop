@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=System Settings
+Name[zh_CN]=系统设置
+Comment=Configure the HyprSequoia desktop
+Comment[zh_CN]=配置 HyprSequoia 桌面
+Exec=hyprsequoia-settings
+Icon=preferences-system
+Terminal=false
+Categories=Settings;
+Keywords=settings;display;network;sound;dock;appearance;
+StartupNotify=true

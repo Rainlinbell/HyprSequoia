@@ -2,18 +2,18 @@
 # Runtime flags supplied by scripts/dock.sh intentionally override these values.
 
 [behavior]
-autohide = true
+autohide = false
 resident = true
 multi = true
-hide-timeout = 400
-hotspot-delay = 20
+hide-timeout = 0
+hotspot-delay = 0
 
 [layout]
 position = "bottom"
 alignment = "center"
 mb = 10
 layer = "overlay"
-exclusive = false
+exclusive = true
 
 [appearance]
 icon-size = 48

@@ -1,1 +1,49 @@
-{"positionX":"right","positionY":"top","layer":"overlay","control-center-width":390,"notification-window-width":390,"timeout":6,"timeout-low":3,"timeout-critical":0,"fit-to-screen":true,"widgets":["title","dnd","mpris","notifications"]}
+{
+  "positionX": "right",
+  "positionY": "top",
+  "control-center-positionX": "right",
+  "control-center-positionY": "top",
+  "control-center-margin-top": 36,
+  "control-center-margin-bottom": 10,
+  "control-center-margin-right": 10,
+  "control-center-margin-left": 10,
+  "control-center-width": 410,
+  "control-center-height": 760,
+  "notification-window-width": 390,
+  "notification-icon-size": 44,
+  "notification-body-image-height": 120,
+  "notification-body-image-width": 200,
+  "layer": "overlay",
+  "control-center-layer": "overlay",
+  "control-center-exclusive-zone": false,
+  "timeout": 6,
+  "timeout-low": 3,
+  "timeout-critical": 0,
+  "transition-time": 180,
+  "keyboard-shortcuts": true,
+  "notification-inline-replies": true,
+  "notification-2fa-action": true,
+  "image-visibility": "when-available",
+  "fit-to-screen": true,
+  "hide-on-clear": false,
+  "hide-on-action": true,
+  "relative-timestamps": true,
+  "widgets": ["buttons-grid", "volume", "backlight", "mpris", "calendar", "title", "dnd", "notifications"],
+  "widget-config": {
+    "buttons-grid": {
+      "actions": [
+        {"label": "󰖩  Wi-Fi", "type": "toggle", "command": "hyprsequoia-control wifi \"$SWAYNC_TOGGLE_STATE\"", "update-command": "hyprsequoia-control wifi status"},
+        {"label": "󰂯  Bluetooth", "type": "toggle", "command": "hyprsequoia-control bluetooth \"$SWAYNC_TOGGLE_STATE\"", "update-command": "hyprsequoia-control bluetooth status"},
+        {"label": "󰖔  Dark Mode", "type": "toggle", "command": "hyprsequoia-control theme \"$SWAYNC_TOGGLE_STATE\"", "update-command": "hyprsequoia-control theme status"},
+        {"label": "󰖨  Night Shift", "type": "toggle", "command": "hyprsequoia-control night-shift \"$SWAYNC_TOGGLE_STATE\"", "update-command": "hyprsequoia-control night-shift status"},
+        {"label": "󰒓  Settings", "command": "hyprsequoia-settings"},
+        {"label": "󰄀  Capture", "command": "hyprsequoia-screenshot region"}
+      ]
+    },
+    "volume": {"label": "󰕾"},
+    "backlight": {"label": "󰃠"},
+    "mpris": {"image-size": 88, "image-radius": 18},
+    "title": {"text": "Notification Center", "clear-all-button": true, "button-text": "Clear"},
+    "dnd": {"text": "Do Not Disturb"}
+  }
+}

@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+# Keyboard-friendly Tahoe settings hub built on the existing Walker runtime.
+set -Eeuo pipefail
+export PATH="$HOME/.local/bin:$PATH"
+
+notify() {
+  if command -v notify-send >/dev/null 2>&1; then notify-send "$@" || true; fi
+}
+
+pick() {
+  local prompt=$1
+  shift
+  command -v walker >/dev/null 2>&1 || { notify 'System Settings' 'Walker is not installed.'; return 1; }
+  printf '%s\n' "$@" | walker --dmenu -p "$prompt" 2>/dev/null || true
+}
+
+launch_first() {
+  local command
+  for command in "$@"; do
+    if command -v "$command" >/dev/null 2>&1; then "$command" >/dev/null 2>&1 & return 0; fi
+  done
+  return 1
+}
+
+network_settings() {
+  local choice
+  choice=$(pick 'Wi-Fi & Network' 'Open Network Connections' 'Toggle Wi-Fi' 'Connection Status' 'Back')
+  case $choice in
+    'Open Network Connections') launch_first nm-connection-editor || notify 'Network' 'NetworkManager editor is unavailable.' ;;
+    'Toggle Wi-Fi') hyprsequoia-control wifi toggle ;;
+    'Connection Status') command -v kitty >/dev/null 2>&1 && kitty --hold sh -c 'nmcli device status; printf "\n"; nmcli connection show --active' & ;;
+  esac
+}
+
+bluetooth_settings() {
+  local choice
+  choice=$(pick 'Bluetooth' 'Open Bluetooth Devices' 'Toggle Bluetooth' 'Back')
+  case $choice in
+    'Open Bluetooth Devices') launch_first blueman-manager || notify 'Bluetooth' 'Blueman is unavailable.' ;;
+    'Toggle Bluetooth') hyprsequoia-control bluetooth toggle ;;
+  esac
+}
+
+sound_settings() {
+  local choice
+  choice=$(pick 'Sound' 'Open Sound Settings' 'Mute / Unmute Output' 'Mute / Unmute Microphone' 'Volume Up' 'Volume Down' 'Back')
+  case $choice in
+    'Open Sound Settings') launch_first pavucontrol || notify 'Sound' 'pavucontrol is unavailable.' ;;
+    'Mute / Unmute Output') wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
+    'Mute / Unmute Microphone') wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle ;;
+    'Volume Up') wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+ ;;
+    'Volume Down') wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- ;;
+  esac
+}
+
+display_settings() {
+  local choice
+  choice=$(pick 'Displays' 'Brightness Up' 'Brightness Down' 'Toggle Night Shift' 'Display Information' 'Back')
+  case $choice in
+    'Brightness Up') brightnessctl set 5%+ ;;
+    'Brightness Down') brightnessctl set 5%- ;;
+    'Toggle Night Shift') hyprsequoia-control night-shift toggle ;;
+    'Display Information') command -v kitty >/dev/null 2>&1 && kitty --hold hyprctl monitors & ;;
+  esac
+}
+
+appearance_settings() {
+  local choice
+  choice=$(pick 'Appearance' 'Light Mode' 'Dark Mode' 'Toggle Light / Dark' 'Reload Desktop UI' 'Open Wallpaper Folder' 'Back')
+  case $choice in
+    'Light Mode') hyprsequoia-theme light ;;
+    'Dark Mode') hyprsequoia-theme dark ;;
+    'Toggle Light / Dark') hyprsequoia-theme toggle ;;
+    'Reload Desktop UI') hyprctl reload; killall -SIGUSR2 waybar 2>/dev/null || true; swaync-client -R -rs 2>/dev/null || true; "$HOME/.config/dock/scripts/dock.sh" restart ;;
+    'Open Wallpaper Folder') xdg-open "$HOME/.config/hypr/wallpapers" >/dev/null 2>&1 & ;;
+  esac
+}
+
+dock_settings() {
+  local choice
+  choice=$(pick 'Desktop & Dock' 'Restart Dock' 'Show Dock' 'Edit Favorites' 'Reload Hyprland' 'Back')
+  case $choice in
+    'Restart Dock') "$HOME/.config/dock/scripts/dock.sh" restart ;;
+    'Show Dock') "$HOME/.config/dock/scripts/dock.sh" show ;;
+    'Edit Favorites') xdg-open "$HOME/.config/dock/favorites.list" >/dev/null 2>&1 & ;;
+    'Reload Hyprland') hyprctl reload ;;
+  esac
+}
+
+keyboard_settings() {
+  local choice
+  choice=$(pick 'Keyboard' 'Switch Keyboard Layout' 'Configure Input Method' 'Open Shortcut Configuration' 'Back')
+  case $choice in
+    'Switch Keyboard Layout') hyprctl switchxkblayout all next ;;
+    'Configure Input Method') launch_first fcitx5-configtool || notify 'Keyboard' 'Fcitx5 configuration tool is unavailable.' ;;
+    'Open Shortcut Configuration') xdg-open "$HOME/.config/hypr/conf.d/50-bindings.conf" >/dev/null 2>&1 & ;;
+  esac
+}
+
+notification_settings() {
+  local choice
+  choice=$(pick 'Notifications' 'Open Notification Center' 'Toggle Do Not Disturb' 'Clear Notifications' 'Back')
+  case $choice in
+    'Open Notification Center') swaync-client -t -sw ;;
+    'Toggle Do Not Disturb') swaync-client -d -sw ;;
+    'Clear Notifications') swaync-client -C ;;
+  esac
+}
+
+about_system() {
+  local version
+  version=$(Hyprland --version 2>/dev/null | head -n 1 || printf 'Hyprland')
+  notify 'About HyprSequoia' "Tahoe-inspired Arch Linux desktop\n$version"
+}
+
+case ${1:-} in
+  network) network_settings; exit ;;
+  bluetooth) bluetooth_settings; exit ;;
+  sound) sound_settings; exit ;;
+  displays) display_settings; exit ;;
+  appearance) appearance_settings; exit ;;
+  dock) dock_settings; exit ;;
+  keyboard) keyboard_settings; exit ;;
+  notifications) notification_settings; exit ;;
+  about) about_system; exit ;;
+esac
+
+while true; do
+  choice=$(pick 'System Settings' 'Wi-Fi & Network' 'Bluetooth' 'Sound' 'Displays' 'Appearance' 'Desktop & Dock' 'Keyboard' 'Notifications' 'About HyprSequoia' 'Quit')
+  case $choice in
+    'Wi-Fi & Network') network_settings ;;
+    Bluetooth) bluetooth_settings ;;
+    Sound) sound_settings ;;
+    Displays) display_settings ;;
+    Appearance) appearance_settings ;;
+    'Desktop & Dock') dock_settings ;;
+    Keyboard) keyboard_settings ;;
+    Notifications) notification_settings ;;
+    'About HyprSequoia') about_system ;;
+    Quit|'') exit 0 ;;
+  esac
+done

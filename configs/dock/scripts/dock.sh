@@ -37,14 +37,23 @@ native_binary() {
 # Seed the native backend's shared pin file from the project defaults once.
 sync_initial_pins() {
   [[ -r $DOCK_FAVORITES ]] || return 0
+  local pin_file tmp
   mkdir -p "$HOME/.cache"
   if [[ ! -e $HOME/.cache/mac-dock-pinned ]]; then
     # shellcheck disable=SC2016
     sed -e 's/^finder$/thunar/' -e 's/^files$/thunar/' -e 's/^code$/code/' \
-      -e 's/^terminal$/kitty/' -e 's/^settings$/systemsettings/' \
+      -e 's/^terminal$/kitty/' -e 's/^settings$/hyprsequoia-settings/' \
       "$DOCK_FAVORITES" | awk 'NF && !seen[$0]++' >"$HOME/.cache/mac-dock-pinned"
   fi
   [[ -e $HOME/.cache/nwg-dock-pinned ]] || cp -- "$HOME/.cache/mac-dock-pinned" "$HOME/.cache/nwg-dock-pinned"
+  # Migrate the old KDE Settings pin without disturbing user ordering or
+  # custom pins created by either native backend.
+  for pin_file in "$HOME/.cache/mac-dock-pinned" "$HOME/.cache/nwg-dock-pinned"; do
+    [[ -f $pin_file ]] || continue
+    tmp=$(mktemp "$HOME/.cache/hyprsequoia-pins.XXXXXX")
+    sed 's/^systemsettings$/hyprsequoia-settings/' "$pin_file" >"$tmp"
+    mv -- "$tmp" "$pin_file"
+  done
 }
 
 # Apply the persisted favorite order to the Waybar fallback configuration.
@@ -61,7 +70,7 @@ sync_fallback_order() {
   mv -- "$tmp" "$config_dir/config.jsonc"
 }
 
-# Stop the selected backend and its fallback pointer watcher.
+# Stop the selected backend and clean a watcher left by pre-resident releases.
 stop_backend() {
   if [[ -r $DOCK_WATCHER_PID_FILE ]]; then
     kill "$(<"$DOCK_WATCHER_PID_FILE")" 2>/dev/null || true
@@ -74,7 +83,7 @@ stop_backend() {
   rm -f -- "$DOCK_BACKEND_FILE"
 }
 
-# Start the preferred native dock, then fall back to Waybar when unavailable.
+# Start the preferred native dock in resident mode, then fall back to Waybar.
 start_backend() {
   running && exit 0
   sync_initial_pins
@@ -82,11 +91,11 @@ start_backend() {
   local log pid native backend
   log="$log_dir/dock-$(date +%Y%m%d-%H%M%S).log"
   if native=$(native_binary); then
-    "$native" --config "$config_dir/nwg-dock-config.toml" -d -i 48 --mb 10 --hide-timeout 400 --opacity 78 --launch-animation -s "$config_dir/nwg-style.css" -c "$config_dir/scripts/launch.sh menu" >>"$log" 2>&1 &
+    "$native" --config "$config_dir/nwg-dock-config.toml" -r -i 50 --mb 10 --opacity 72 --launch-animation -s "$config_dir/nwg-style.css" -c "$config_dir/scripts/launch.sh menu" >>"$log" 2>&1 &
     pid=$!
     backend=rust
   elif command -v nwg-dock-hyprland >/dev/null 2>&1; then
-    nwg-dock-hyprland -d -p bottom -a center -i 48 -mb 10 -l overlay -s "$config_dir/nwg-style.css" -c "$config_dir/scripts/launch.sh menu" >>"$log" 2>&1 &
+    nwg-dock-hyprland -r -x -p bottom -a center -i 50 -mb 10 -s "$config_dir/nwg-style.css" -c "$config_dir/scripts/launch.sh menu" >>"$log" 2>&1 &
     pid=$!
     backend=go
   elif command -v waybar >/dev/null 2>&1; then
@@ -109,8 +118,8 @@ start_backend() {
       return 1
     fi
   fi
-  # Waybar has no pointer-aware dock hotspot. Keep this last-resort backend
-  # visible and clickable; the installed native Hyprland backend owns autohide.
+  # Every backend is resident by design. This keeps the Dock predictable and
+  # clickable on touchpads, virtual machines, and nested Wayland sessions.
   printf '%s\n' "$backend" >"$DOCK_BACKEND_FILE"
   printf '%s\n' "$pid" >"$DOCK_PID_FILE"
 }

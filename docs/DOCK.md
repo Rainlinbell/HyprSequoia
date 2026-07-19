@@ -9,8 +9,8 @@ share the top bar's Waybar process or configuration.
 The launcher uses this order:
 
 1. **Rust `nwg-dock`** — the feature-complete optional backend. It provides
-   per-monitor windows and hotplug handling, cursor-tracked auto-hide,
-   running/focused indicators, launch bounce, icon scaling, and
+   per-monitor windows and hotplug handling, running/focused indicators,
+   launch bounce, icon scaling, and
    drag-to-reorder/remove. Install its GTK4 dependencies and binary when you
    want the complete macOS-style behavior:
 
@@ -20,15 +20,20 @@ The launcher uses this order:
    ```
 
 2. **Go `nwg-dock-hyprland`** — the default installed native backend. It
-   provides Hyprland client buttons, pinned apps, focus state, reliable
-   auto-hide hotspots, CSS, and multiple outputs. It does not provide the Rust
+   provides Hyprland client buttons, pinned apps, focus state, resident mode,
+   CSS, and multiple outputs. It does not provide the Rust
    backend's drag ordering, launch animation, or pointer magnification.
 
 3. **Waybar `wlr/taskbar`** — the last-resort fallback already installed by
    HyprSequoia. It supplies static launchers, running task buttons, active
    indicators, a recent-app menu, Trash, and hover scaling. It remains visible
-   and clickable because Waybar cannot provide a reliable pointer-aware Dock
-   hotspot; auto-hide belongs to either native backend.
+   and clickable. All three backends use the same resident behavior.
+
+The Dock is deliberately permanent: native backends start with their resident
+flag and the Waybar fallback starts visible. This avoids disappearing or
+unclickable hotspots on virtual machines, touchpads, and nested Wayland
+sessions. It stays centered with a small bottom margin on every output and
+reserves its edge so maximized windows do not cover it.
 
 The Rust backend is a separate upstream Wayland application, not vendored into
 this repository. The wrapper detects it without hardcoding a monitor name or
@@ -48,7 +53,8 @@ requiring an AUR helper. See the upstream feature and configuration reference:
 
 ## Controls
 
-`Super` + `B` toggles the Dock. The command-line lifecycle controls are:
+`Super` + `B` shows the Dock if another tool hid it. The command-line lifecycle
+controls are:
 
 ```bash
 ~/.config/dock/scripts/dock.sh status
@@ -74,4 +80,4 @@ Edit `favorites.list` for the fallback order, then restart the Dock. Keep
 personal CSS overrides in a separate file and pass it through a local wrapper
 so updates do not overwrite them. The native config follows the upstream TOML
 schema; CLI flags in `dock.sh` intentionally override only runtime-sensitive
-settings such as auto-hide and the launcher command.
+settings such as resident mode and the launcher command.

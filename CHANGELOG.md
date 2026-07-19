@@ -6,6 +6,13 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ### Added
 
+- Tahoe Liquid Glass appearance system spanning the transparent menu bar,
+  resident Dock, Control Center, Notification Center, Spotlight, lock screen,
+  terminal, Hyprland decoration, and dark/light palettes.
+- Unified SwayNC Control Center with Wi-Fi, Bluetooth, appearance, Night Shift,
+  Settings, capture, volume, brightness, media, Do Not Disturb, and history.
+- Project-owned `hyprsequoia-settings`, `hyprsequoia-theme`, and
+  `hyprsequoia-control` runtime tools plus a desktop application entry.
 - Sequoia-style Walker Spotlight with a centered blurred theme, preview pane,
   warm service startup, keyboard navigation, ranked multi-provider search,
   recent files, Settings search, and quick actions.
@@ -33,6 +40,10 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ### Changed
 
+- Run every Dock backend in permanent resident mode and make `Super+B` a
+  recovery/show action instead of an auto-hide toggle.
+- Route Apple-menu Settings and Dock Settings through the unified HyprSequoia
+  settings hub, while retaining installed desktop settings tools as fallbacks.
 - Migrated Hyprland window, layer, gesture, and hyprpaper configuration to the
   syntax used by current Arch packages.
 - NVIDIA installs now preserve an existing driver or prompt for the appropriate
@@ -41,6 +52,8 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ### Fixed
 
+- Retry one failed updater fetch over HTTP/1.1 without disabling TLS
+  verification, covering intermittent GitHub `SSL_read` disconnects.
 - Install the official Hyprland-native Dock by default; make the Waybar fallback
   visible/clickable instead of polling an unusably narrow autohide hotspot.
 - Install `librsvg`, prefer `rsvg-convert`, reject empty cached wallpaper images,

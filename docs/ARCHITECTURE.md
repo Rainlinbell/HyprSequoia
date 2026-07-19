@@ -5,6 +5,11 @@ are stable user entry points. `scripts/lib` owns shared behavior; runtime helper
 in `scripts/bin` must remain independently executable. Each application owns one
 directory below `configs`.
 
+Project-owned application launchers live in `configs/applications` and are
+installed under `~/.local/share/applications`. They are recorded in the same
+manifest as runtime helpers so restore removes only entries owned by this
+project.
+
 Hyprland loads numbered modules in a predictable order: environment, monitor
 fallback, input, appearance, rules, bindings, then autostart. A module may rely
 on earlier variables but must not redefine another module's responsibility.
@@ -42,14 +47,22 @@ while Walker stays warm as a GTK GApplication service and is activated by the
 bounded scripts that reuse Walker's dmenu mode instead of adding resident
 indexers or another launcher.
 
+The System Settings hub follows the same boundary: `hyprsequoia-settings`
+routes to existing NetworkManager, Blueman, PipeWire, Hyprland, and project
+helpers rather than introducing another privileged daemon. SwayNC owns the
+Control Center surface and calls `hyprsequoia-control` for idempotent toggle
+state. `hyprsequoia-theme` is the single writer for generated appearance
+palettes across Waybar, Dock, SwayNC, and Walker.
+
 ## Dock backends
 
 The Dock is isolated under `configs/dock` and launched by its lifecycle wrapper.
 The wrapper feature-detects the Rust `nwg-dock` CLI, then the Hyprland-specific Go
 backend, and finally starts a Waybar-only fallback. This keeps the base install
 usable without compiling Rust while allowing users to opt into the complete
-native interaction model later. Backend state, recent applications, and pins
-are kept outside the repository in XDG state/cache locations.
+native interaction model later. Every backend starts in resident mode, so no
+pointer hotspot is required. Backend state, recent applications, and pins are
+kept outside the repository in XDG state/cache locations.
 
 ## Security boundaries
 

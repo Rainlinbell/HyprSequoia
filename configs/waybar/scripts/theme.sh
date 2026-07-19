@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
-# Switch the imported Waybar palette and reload all Waybar instances.
+# Compatibility entry point for the unified HyprSequoia theme controller.
 set -Eeuo pipefail
+if command -v hyprsequoia-theme >/dev/null 2>&1; then
+  exec hyprsequoia-theme "${1:-toggle}"
+fi
 script_dir=$(cd -- "$(dirname -- "$0")" && pwd -P)
 config_dir=$(cd -- "$script_dir/.." && pwd -P)
 state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/hyprsequoia"

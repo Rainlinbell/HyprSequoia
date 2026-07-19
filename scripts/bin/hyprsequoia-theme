@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# Apply one Tahoe appearance mode consistently across desktop components.
+set -Eeuo pipefail
+
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/hyprsequoia"
+state_file="$state_dir/appearance"
+mkdir -p "$state_dir"
+current=dark
+if [[ -r $state_file ]]; then
+  IFS= read -r current <"$state_file"
+elif [[ -r $state_dir/waybar-theme ]]; then
+  IFS= read -r current <"$state_dir/waybar-theme"
+fi
+
+case ${1:-toggle} in
+  dark|light) next=$1 ;;
+  toggle) [[ $current == dark ]] && next=light || next=dark ;;
+  status) printf '%s\n' "$current"; exit 0 ;;
+  *) printf 'Usage: %s {dark|light|toggle|status}\n' "$0" >&2; exit 2 ;;
+esac
+
+# Replace a generated palette atomically so file watchers never read a partial
+# CSS file while Waybar, SwayNC, or Walker is reloading.
+apply_palette() {
+  local source=$1 destination=$2 tmp
+  [[ -r $source && -d ${destination%/*} ]] || return 0
+  tmp=$(mktemp "${destination%/*}/.hyprsequoia-theme.XXXXXX")
+  cp -- "$source" "$tmp"
+  chmod 644 "$tmp"
+  mv -- "$tmp" "$destination"
+}
+
+apply_palette "$HOME/.config/waybar/theme-$next.css" "$HOME/.config/waybar/theme.css"
+apply_palette "$HOME/.config/dock/theme-$next.css" "$HOME/.config/dock/theme.css"
+apply_palette "$HOME/.config/dock/nwg-style-$next.css" "$HOME/.config/dock/nwg-style.css"
+apply_palette "$HOME/.config/swaync/theme-$next.css" "$HOME/.config/swaync/theme.css"
+apply_palette "$HOME/.config/walker/themes/sequoia/theme-$next.css" "$HOME/.config/walker/themes/sequoia/theme.css"
+printf '%s\n' "$next" >"$state_file"
+printf '%s\n' "$next" >"$state_dir/waybar-theme"
+
+if command -v gsettings >/dev/null 2>&1; then
+  if [[ $next == dark ]]; then
+    gsettings set org.gnome.desktop.interface color-scheme prefer-dark 2>/dev/null || true
+  else
+    gsettings set org.gnome.desktop.interface color-scheme prefer-light 2>/dev/null || true
+  fi
+fi
+
+if command -v hyprctl >/dev/null 2>&1; then
+  if [[ $next == dark ]]; then
+    hyprctl keyword general:col.active_border 'rgba(78abffff)' >/dev/null 2>&1 || true
+    hyprctl keyword general:col.inactive_border 'rgba(ffffff20)' >/dev/null 2>&1 || true
+  else
+    hyprctl keyword general:col.active_border 'rgba(176fe5ff)' >/dev/null 2>&1 || true
+    hyprctl keyword general:col.inactive_border 'rgba(20232a24)' >/dev/null 2>&1 || true
+  fi
+fi
+
+killall -SIGUSR2 waybar 2>/dev/null || true
+if command -v swaync-client >/dev/null 2>&1; then
+  swaync-client -rs >/dev/null 2>&1 || true
+fi
+if [[ -x $HOME/.config/dock/scripts/dock.sh ]]; then
+  "$HOME/.config/dock/scripts/dock.sh" restart >/dev/null 2>&1 || true
+fi
+if command -v notify-send >/dev/null 2>&1; then
+  notify-send 'Appearance' "Tahoe $next mode" >/dev/null 2>&1 || true
+fi

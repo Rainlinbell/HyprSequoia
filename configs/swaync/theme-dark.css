@@ -1,0 +1,19 @@
+/* Dark Tahoe Control Center palette. */
+@define-color cc_glass rgba(24, 27, 35, 0.76);
+@define-color cc_glass_strong rgba(32, 35, 44, 0.95);
+@define-color cc_border rgba(255, 255, 255, 0.25);
+@define-color cc_highlight rgba(255, 255, 255, 0.16);
+@define-color cc_shadow rgba(0, 0, 0, 0.46);
+@define-color cc_tile rgba(255, 255, 255, 0.10);
+@define-color cc_tile_hover rgba(255, 255, 255, 0.17);
+@define-color cc_tile_border rgba(255, 255, 255, 0.10);
+@define-color cc_notification rgba(255, 255, 255, 0.075);
+@define-color cc_track rgba(255, 255, 255, 0.18);
+@define-color cc_slider #ffffff;
+@define-color cc_accent rgba(43, 124, 255, 0.82);
+@define-color cc_accent_border rgba(140, 188, 255, 0.72);
+@define-color cc_accent_solid #4a96ff;
+@define-color cc_accent_text #ffffff;
+@define-color cc_text #f7f8fb;
+@define-color cc_muted rgba(247, 248, 251, 0.70);
+@define-color cc_subtle rgba(247, 248, 251, 0.46);

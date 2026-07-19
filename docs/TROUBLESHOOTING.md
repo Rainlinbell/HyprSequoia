@@ -203,9 +203,9 @@ fallback) before starting hyprpaper. The installer includes `librsvg`; failed
 or zero-byte cached images are regenerated. Reload Hyprland with `hyprctl
 reload` after config edits.
 
-The installer includes the official `nwg-dock-hyprland` backend for native
-autohide hotspots and clickable launchers. The Waybar last-resort fallback stays
-visible because it cannot provide a reliable pointer-aware hotspot.
+The installer includes the official `nwg-dock-hyprland` backend for native,
+clickable launchers. Every Dock backend now starts in permanent resident mode;
+`Super` + `B` sends an explicit show request if an old process was hidden.
 
 ## Screen sharing fails
 

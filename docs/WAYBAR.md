@@ -9,7 +9,7 @@ output, and `separate-outputs` keeps window information local to each screen.
 - `configs/waybar/config.jsonc` — module order, polling intervals, and click actions
 - `configs/waybar/style.css` — layout, spacing, hover states, and typography
 - `configs/waybar/theme.css` — active dark palette
-- `configs/waybar/theme-light.css` — light palette selected by `theme.sh`
+- `configs/waybar/theme-{dark,light}.css` — immutable Tahoe palettes
 - `configs/waybar/scripts/` — small, independently testable status and popup helpers
 
 The top-level arrays in `config.jsonc` are the customization API. Reorder a
@@ -20,15 +20,17 @@ optional command is missing.
 
 ## Popups and actions
 
-The Apple logo, application labels, and Control Center open Walker's
-layer-shell dmenu. This keeps popup placement and keyboard focus consistent on
-all monitors. Notification Center uses SwayNC. Network and audio actions open
-the native NetworkManager and PulseAudio/PipeWire panels.
+The Apple logo and application labels use Walker's layer-shell dmenu. Control
+Center and Notification Center use one Tahoe-styled SwayNC panel with network,
+Bluetooth, appearance, Night Shift, audio, brightness, media, Do Not Disturb,
+and notification controls. Right-click Control Center to open the project-owned
+System Settings hub.
 
-Right-clicking the Apple logo or choosing **Toggle Light/Dark Mode** replaces
-the imported palette and sends Waybar `SIGUSR2`; the compositor keeps the
-rounded translucent surface blurred through the `layerrule = blur,waybar`
-Hyprland rule.
+Right-clicking the Apple logo or selecting the appearance tile runs
+`hyprsequoia-theme`. It atomically replaces the active Waybar, Dock, SwayNC,
+and Walker palettes, updates the GTK color preference, reloads the affected
+components, and saves the choice in XDG state. The menu bar background itself
+is transparent; hover controls and popups use Liquid Glass surfaces.
 
 ## Adding a module
 

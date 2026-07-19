@@ -4,10 +4,11 @@
 |---|---|---|
 | Hyprland | Composition, input, animation, bindings | `hyprland` |
 | SDDM session | Named `start-hyprland` login entry | `sddm` |
-| Waybar | Sequoia-style menu bar and status controls | `waybar`, `networkmanager`, `bluetoothctl` |
-| Dock | Bottom-centered application dock with native/fallback backends | `nwg-dock` (optional), `waybar` |
+| Waybar | Tahoe-style transparent menu bar and status controls | `waybar`, `networkmanager`, `bluetoothctl` |
+| Dock | Resident bottom-centered application dock with native/fallback backends | `nwg-dock-hyprland`, `waybar` |
 | Walker | Spotlight-style apps/files/calc/clipboard/symbol search | `walker-bin`, `elephant` providers |
-| SwayNC | Notifications and media panel | `swaync` |
+| SwayNC | Tahoe Control Center, notifications, sliders, and media | `swaync` |
+| System Settings | Project-owned settings hub for desktop integrations | `walker-bin`, runtime helpers |
 | Hyprlock / Hypridle | Lock and idle policy | `hyprlock`, `hypridle` |
 | Hyprpaper | Project wallpaper | `hyprpaper` |
 | Kitty | Default terminal | `kitty` |
@@ -33,6 +34,7 @@ helpers live in `configs/waybar/scripts/`; each custom module returns a small
 JSON object containing text, tooltip, and state class.
 
 `theme.css` is the active palette. Right-click the Apple logo or choose
-**Toggle Light/Dark Mode** in Control Center to switch between the bundled dark
-and light palettes. The switch is stored in
-`~/.local/state/hyprsequoia/waybar-theme` and Waybar is reloaded with SIGUSR2.
+**Dark Mode** in Control Center to switch between the bundled Tahoe dark and
+light palettes. The unified choice is stored in
+`~/.local/state/hyprsequoia/appearance`; Waybar, Dock, SwayNC, Walker, GTK, and
+Hyprland accents are updated together.

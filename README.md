@@ -4,21 +4,22 @@
 
 # HyprSequoia
 
-一套为 Arch Linux 打造的原创、模块化 Hyprland 桌面体验，设计灵感来自 macOS Sequoia。
+一套为 Arch Linux 打造的原创、模块化 Hyprland 桌面体验，视觉设计灵感来自 macOS Tahoe。
 
 </div>
 
 HyprSequoia 是一个可长期维护的完整桌面项目，而不是个人配置文件的简单集合。项目提供交互式安装、配置备份、失败回滚、更新和恢复工具，帮助 Arch Linux、KDE 迁移用户以及 Linux 新手快速搭建一套稳定、清晰且易于维护的 Wayland 桌面。
 
-> **当前状态：v0.1 基础版本。** Hyprland 会话、安装器、备份与恢复、顶部菜单栏、应用启动器、通知中心、锁屏、壁纸及日常硬件集成已经可用。完整 Dock 交互（拖动排序、启动弹跳和原生多屏热点）在可选 Rust 后端中可用；没有该后端时会使用轻量回退实现。统一控制中心、自动明暗主题和图形化安装器仍在路线图中。
+> **当前状态：v0.1 基础版本。** Hyprland 会话、安装器、备份与恢复、Tahoe 顶部菜单栏、常驻 Dock、Spotlight、统一控制中心、系统设置入口、通知中心、明暗主题、锁屏、壁纸及日常硬件集成已经可用。完整 Dock 拖动排序和启动弹跳在可选 Rust 后端中可用；图形化安装器仍在路线图中。
 
 ## 功能概览
 
 - 模块化 Hyprland 配置，输入、外观、窗口规则、快捷键和自启动相互独立
-- 类 macOS 顶部菜单栏，包含工作区、网络、蓝牙、音量、电池、时钟和通知入口
-- Sequoia 风格 Spotlight：应用、文件、计算器、单位/货币换算、剪贴板、Emoji、最近文件、设置和快捷操作
-- SwayNC 通知中心与媒体控件
-- 底部 Sequoia Dock：自动隐藏、运行指示、收藏应用、最近应用和多显示器支持
+- Tahoe 风格透明顶部菜单栏，包含网络、蓝牙、音量、电池、时钟、通知和控制中心入口
+- Tahoe Liquid Glass 风格 Spotlight：应用、文件、计算器、单位/货币换算、剪贴板、Emoji、最近文件、设置和快捷操作
+- SwayNC 控制中心与通知中心，集成 Wi-Fi、蓝牙、明暗模式、Night Shift、亮度、音量、媒体和日历控件
+- 底部常驻 Tahoe Dock：运行指示、收藏应用、最近应用和多显示器支持
+- 统一的 HyprSequoia 系统设置入口和跨组件明暗主题控制
 - Hyprlock 模糊锁屏和 Hypridle 自动锁定策略
 - PipeWire 音频、NetworkManager、蓝牙、亮度及截图集成
 - 完整安装、最小安装、中文环境以及 NVIDIA、AMD、Intel 硬件配置
@@ -86,11 +87,13 @@ cd HyprSequoia
 | Spotlight 快捷操作 | `Super` + `Shift` + `A` |
 | 打开终端 | `Super` + `Enter` |
 | 打开文件管理器 | `Super` + `E` |
+| 打开系统设置 | `Super` + `,` |
+| 打开控制中心 | `Super` + `Shift` + `C` |
 | 锁定屏幕 | `Super` + `L` |
 | 关闭当前窗口 | `Super` + `Q` |
 | 切换全屏 | `Super` + `F` |
 | 切换浮动窗口 | `Super` + `V` |
-| 显示/隐藏 Dock | `Super` + `B` |
+| 显示 Dock | `Super` + `B` |
 | 切换到工作区 1–4 | `Super` + `1`–`4` |
 | 将窗口移动到工作区 1–4 | `Super` + `Shift` + `1`–`4` |
 | 区域截图 | `Print` |
@@ -107,7 +110,7 @@ cd HyprSequoia
 ./update.sh
 ```
 
-更新工具要求 Git 工作区没有未提交修改，并只接受快进更新。拉取新版本后会重新进入交互式安装流程，在覆盖配置前创建新的备份。
+更新工具要求 Git 工作区没有未提交修改，并只接受快进更新。若首次 HTTPS 拉取遇到临时 `SSL_read` 中断，会在保持证书验证的前提下使用 HTTP/1.1 重试一次。拉取新版本后会重新进入交互式安装流程，在覆盖配置前创建新的备份。
 
 ### 6. 恢复配置
 
@@ -138,15 +141,17 @@ Unicode、`;` 切换搜索提供器。Walker 以后台服务方式预热，Eleph
 
 ### Dock
 
-安装后 Dock 会随 Hyprland 会话自动启动。若系统中存在 Rust 版 `nwg-dock`，
-HyprSequoia 会启用完整的原生 Dock（拖动排序、启动弹跳和多屏热点）；否则会
-自动使用 Go 版或 Waybar 轻量回退实现。详见[Dock 文档](docs/DOCK.md)。
+安装后 Dock 会以常驻模式随 Hyprland 会话自动启动，不再使用底部自动隐藏
+热点。若系统中存在 Rust 版 `nwg-dock`，HyprSequoia 会启用完整的原生 Dock
+（拖动排序和启动弹跳）；否则会自动使用 Go 版或 Waybar 轻量回退实现。
+详见[Dock 文档](docs/DOCK.md)和[外观文档](docs/APPEARANCE.md)。
 
 ## 项目结构
 
 - `configs/hypr/conf.d/`：独立的 Hyprland 功能模块
 - `configs/sddm/`：通过 `start-hyprland` 启动的 HyprSequoia 会话入口
 - `configs/{waybar,kitty,walker,swaync}/`：桌面应用配置
+- `configs/applications/`：HyprSequoia 桌面应用入口
 - `configs/dock/`：原生优先的底部 Dock 与 Waybar 回退配置
 - `scripts/lib/`：安装器共享函数和软件包逻辑
 - `scripts/bin/`：安装到 `~/.local/bin` 的运行时工具

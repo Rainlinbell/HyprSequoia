@@ -1,6 +1,6 @@
 # Spotlight
 
-HyprSequoia Spotlight is a centered macOS Sequoia-style command palette built
+HyprSequoia Spotlight is a centered macOS Tahoe-style command palette built
 from Walker (GTK4/layer-shell) and Elephant (the provider service). The module
 is Wayland-native and remains independent from the menu bar and Dock.
 

@@ -41,6 +41,9 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ### Fixed
 
+- Detect and repair zero-byte `/usr/lib/*.so*` files by reinstalling and
+  verifying their owning official package; unowned and foreign-package files
+  remain warnings rather than unsafe automatic mutations.
 - Made Elephant package-family selection upgrade-aware: existing source-package
   installations remain on their installed family, while fresh installations
   use binaries, avoiding a noninteractive `elephant-bin`/`elephant` conflict.

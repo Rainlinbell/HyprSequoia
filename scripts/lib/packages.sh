@@ -91,6 +91,46 @@ install_official_packages() {
     || die "Official package retry failed. Review $transaction_log and the pacman output above."
 }
 
+# A zero-byte shared library is never loadable. Reinstall its owning official
+# package after the main transaction, then verify the exact file was restored.
+# Unowned or foreign-package files are reported but never guessed or removed.
+repair_empty_owned_shared_libraries() {
+  local path owner
+  local -a empty_libraries=() owners=() unique_owners=()
+
+  mapfile -t empty_libraries < <(
+    find /usr/lib -maxdepth 1 -type f -empty \
+      \( -name '*.so' -o -name '*.so.*' \) -print 2>/dev/null | sort -u
+  )
+  ((${#empty_libraries[@]})) || return 0
+
+  for path in "${empty_libraries[@]}"; do
+    if ! owner=$(pacman -Qqo -- "$path" 2>/dev/null); then
+      warn "Unowned empty shared library requires manual investigation: $path"
+      continue
+    fi
+    if pacman -Si "$owner" >/dev/null 2>&1; then
+      owners+=("$owner")
+    else
+      warn "Empty shared library belongs to a foreign package ($owner): $path"
+    fi
+  done
+  ((${#owners[@]})) || return 0
+
+  mapfile -t unique_owners < <(printf '%s\n' "${owners[@]}" | sort -u)
+  warn "Reinstalling official packages that own empty shared libraries: ${unique_owners[*]}"
+  as_root env LC_ALL=C pacman -S --noconfirm "${unique_owners[@]}" \
+    || die "Could not repair packages that own empty shared libraries: ${unique_owners[*]}"
+
+  for path in "${empty_libraries[@]}"; do
+    owner=$(pacman -Qqo -- "$path" 2>/dev/null || true)
+    if [[ -n $owner ]] && printf '%s\n' "${unique_owners[@]}" | grep -Fqx -- "$owner"; then
+      [[ -s $path ]] || die "Package reinstall left an empty shared library: $path"
+    fi
+  done
+  info "Owned empty shared libraries repaired."
+}
+
 # AUR helpers cache completed downloads and package builds, so a single retry
 # can recover a transient mirror/AUR failure without repeating successful work.
 install_aur_packages() {
@@ -251,6 +291,7 @@ install_packages() {
     fi
     install_aur_packages "$helper" "${aur[@]}"
   fi
+  repair_empty_owned_shared_libraries
 }
 
 # Enable system services required by the desktop.

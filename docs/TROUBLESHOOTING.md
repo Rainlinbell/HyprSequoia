@@ -61,6 +61,12 @@ The Chinese profile names the four concrete packages in the `fcitx5-im` group
 plus `fcitx5-rime` explicitly, so official repository classification and repair
 remain deterministic.
 
+After package installation, zero-byte shared libraries directly under
+`/usr/lib` are checked. The installer reinstalls and verifies their owning
+official packages (for example, `fcitx5-configtool` owns
+`libFcitx5Migrator.so`). It only warns about unowned or foreign-package files;
+it never guesses their source or deletes them.
+
 ## Session returns to SDDM
 
 Switch to a TTY with `Ctrl+Alt+F3` and sign in as the same non-root user. Do not

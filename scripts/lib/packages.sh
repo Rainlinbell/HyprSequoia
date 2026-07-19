@@ -10,8 +10,14 @@ readonly -a HS_CN_PACKAGES=(fcitx5 fcitx5-configtool fcitx5-gtk fcitx5-qt fcitx5
 # packages. Prefer the matching Elephant split binaries: explicitly requesting
 # the source packages makes a normal desktop install compile Go modules and can
 # fail solely because proxy.golang.org is unreachable.
-readonly -a HS_SPOTLIGHT_CORE_PACKAGES=(elephant-bin elephant-desktopapplications-bin elephant-calc-bin)
-readonly -a HS_SPOTLIGHT_EXTRA_PACKAGES=(elephant-files-bin elephant-clipboard-bin elephant-symbols-bin elephant-unicode-bin elephant-providerlist-bin)
+readonly -a HS_SPOTLIGHT_BIN_CORE_PACKAGES=(elephant-bin elephant-desktopapplications-bin elephant-calc-bin)
+readonly -a HS_SPOTLIGHT_BIN_EXTRA_PACKAGES=(elephant-files-bin elephant-clipboard-bin elephant-symbols-bin elephant-unicode-bin elephant-providerlist-bin)
+# Keep an already-installed source family during an upgrade. Replacing it with
+# the conflicting binary family requires removing packages mid-transaction and
+# makes a failed download leave Walker without its runtime. Fresh installs use
+# the binary family above.
+readonly -a HS_SPOTLIGHT_SOURCE_CORE_PACKAGES=(elephant elephant-desktopapplications elephant-calc)
+readonly -a HS_SPOTLIGHT_SOURCE_EXTRA_PACKAGES=(elephant-files elephant-clipboard elephant-symbols elephant-unicode elephant-providerlist)
 HS_NVIDIA_EXTRA=()
 
 # Move only unowned files reported by pacman as transaction conflicts. This
@@ -193,7 +199,14 @@ add_nvidia_headers() {
 
 # Install official packages in a single idempotent transaction.
 install_packages() {
-  local -a packages=("${HS_CORE_PACKAGES[@]}" "${HS_SPOTLIGHT_CORE_PACKAGES[@]}" "${HS_SPOTLIGHT_EXTRA_PACKAGES[@]}")
+  local -a spotlight_core=("${HS_SPOTLIGHT_BIN_CORE_PACKAGES[@]}")
+  local -a spotlight_extra=("${HS_SPOTLIGHT_BIN_EXTRA_PACKAGES[@]}")
+  if pacman -Q elephant >/dev/null 2>&1 && ! pacman -Q elephant-bin >/dev/null 2>&1; then
+    info "Keeping the installed Elephant source-package family for this upgrade."
+    spotlight_core=("${HS_SPOTLIGHT_SOURCE_CORE_PACKAGES[@]}")
+    spotlight_extra=("${HS_SPOTLIGHT_SOURCE_EXTRA_PACKAGES[@]}")
+  fi
+  local -a packages=("${HS_CORE_PACKAGES[@]}" "${spotlight_core[@]}" "${spotlight_extra[@]}")
   [[ $HS_PROFILE == full ]] && packages+=("${HS_FULL_PACKAGES[@]}")
   [[ $HS_CHINESE == 1 ]] && packages+=("${HS_CN_PACKAGES[@]}")
   case $HS_GPU in

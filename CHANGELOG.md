@@ -41,6 +41,9 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ### Fixed
 
+- Made Elephant package-family selection upgrade-aware: existing source-package
+  installations remain on their installed family, while fresh installations
+  use binaries, avoiding a noninteractive `elephant-bin`/`elephant` conflict.
 - Added a guarded Pacman transaction retry that backs up only unowned
   `exists in filesystem` conflicts, refuses owned/directory paths, and then
   retries once; the Chinese profile now expands `fcitx5-im` to concrete

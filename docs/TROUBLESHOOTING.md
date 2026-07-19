@@ -27,6 +27,13 @@ git pull --ff-only
 ./install.sh
 ```
 
+When upgrading a machine that already has the source-built `elephant` family,
+the installer keeps that complete installed family instead of attempting an
+unsafe noninteractive replacement with the conflicting `elephant-bin` family.
+Fresh installations select the binary family. This prevents the Pacman prompt
+`elephant-bin and elephant are in conflict. Remove elephant? [y/N]` from
+aborting an otherwise healthy upgrade.
+
 The AUR transaction retries once using the helper's download/build cache. A
 second failure stops before configuration deployment and retains the full
 installer log; repeated authentication, package-integrity, or build failures

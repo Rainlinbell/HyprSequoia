@@ -41,6 +41,12 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ### Fixed
 
+- Added a guarded Pacman transaction retry that backs up only unowned
+  `exists in filesystem` conflicts, refuses owned/directory paths, and then
+  retries once; the Chinese profile now expands `fcitx5-im` to concrete
+  official packages for deterministic resolution.
+- Added one bounded AUR retry that reuses the helper cache, while keeping
+  repeated package/build errors as hard failures before configuration deploy.
 - Recorded the top-level lifecycle scripts as executable in Git and removed the
   conflicting post-clone `chmod` step that made later fast-forward pulls fail.
 - Switched Spotlight's Elephant runtime and targeted providers to their

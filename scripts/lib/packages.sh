@@ -3,7 +3,9 @@
 
 readonly -a HS_CORE_PACKAGES=(hyprland sddm waybar kitty walker-bin swaync hyprpaper hyprlock hypridle networkmanager bluez bluez-utils pipewire wireplumber pipewire-pulse xdg-desktop-portal-hyprland xdg-desktop-portal-gtk grim slurp wl-clipboard cliphist gammastep jq brightnessctl playerctl polkit-gnome qt5-wayland qt6-wayland noto-fonts noto-fonts-emoji ttf-jetbrains-mono-nerd bibata-cursor-theme imagemagick pciutils)
 readonly -a HS_FULL_PACKAGES=(thunar thunar-archive-plugin file-roller pavucontrol network-manager-applet blueman jq)
-readonly -a HS_CN_PACKAGES=(fcitx5-im fcitx5-rime fcitx5-configtool noto-fonts-cjk)
+# Use concrete packages rather than the fcitx5-im group. `pacman -Si` resolves
+# packages, not groups, and package/AUR classification must remain deterministic.
+readonly -a HS_CN_PACKAGES=(fcitx5 fcitx5-configtool fcitx5-gtk fcitx5-qt fcitx5-rime noto-fonts-cjk)
 # Walker itself and the official Elephant release both publish prebuilt AUR
 # packages. Prefer the matching Elephant split binaries: explicitly requesting
 # the source packages makes a normal desktop install compile Go modules and can
@@ -11,6 +13,95 @@ readonly -a HS_CN_PACKAGES=(fcitx5-im fcitx5-rime fcitx5-configtool noto-fonts-c
 readonly -a HS_SPOTLIGHT_CORE_PACKAGES=(elephant-bin elephant-desktopapplications-bin elephant-calc-bin)
 readonly -a HS_SPOTLIGHT_EXTRA_PACKAGES=(elephant-files-bin elephant-clipboard-bin elephant-symbols-bin elephant-unicode-bin elephant-providerlist-bin)
 HS_NVIDIA_EXTRA=()
+
+# Move only unowned files reported by pacman as transaction conflicts. This
+# recovers safely from an interrupted extraction or missing local file metadata:
+# every path is retained in the user's state backup, while files owned by any
+# package and directory conflicts remain hard failures.
+backup_unowned_pacman_conflicts() {
+  local transaction_log=$1 backup path owner destination unsafe=0
+  local -a conflicts=()
+
+  mapfile -t conflicts < <(
+    sed -nE 's/^[^:]+: (\/.*) exists in filesystem$/\1/p' "$transaction_log" | sort -u
+  )
+  ((${#conflicts[@]})) || return 1
+
+  for path in "${conflicts[@]}"; do
+    if [[ $path != /* || $path == *'/../'* || $path == */.. ]]; then
+      warn "Refusing an unsafe pacman conflict path: $path"
+      unsafe=1
+      continue
+    fi
+    [[ -e $path || -L $path ]] || continue
+    if owner=$(pacman -Qqo -- "$path" 2>/dev/null); then
+      warn "Pacman conflict is owned by ${owner//$'\n'/, }: $path"
+      unsafe=1
+    elif [[ -d $path && ! -L $path ]]; then
+      warn "Pacman conflict is a directory and will not be moved automatically: $path"
+      unsafe=1
+    fi
+  done
+  ((unsafe == 0)) || return 1
+
+  backup="$HS_BACKUP_DIR/package-conflicts-$(date +%Y%m%d-%H%M%S)"
+  mkdir -p "$backup"
+  for path in "${conflicts[@]}"; do
+    [[ -e $path || -L $path ]] || continue
+    destination="$backup/${path#/}"
+    mkdir -p "$(dirname -- "$destination")"
+    as_root mv -- "$path" "$destination"
+    warn "Preserved unowned conflicting file: $path"
+  done
+  warn "Pacman conflict backup: $backup"
+}
+
+# Run one full official repository transaction. If the only failure is unowned
+# `exists in filesystem` residue, preserve those paths and retry exactly once.
+install_official_packages() {
+  local transaction_log status
+  local -a packages=("$@")
+  ((${#packages[@]})) || return 0
+  transaction_log="$HS_LOG_DIR/pacman-$(date +%Y%m%d-%H%M%S).log"
+
+  set +e
+  as_root env LC_ALL=C pacman -Syu --needed --noconfirm "${packages[@]}" \
+    2>&1 | tee "$transaction_log"
+  status=${PIPESTATUS[0]}
+  set -e
+  ((status == 0)) && return 0
+
+  if ! backup_unowned_pacman_conflicts "$transaction_log"; then
+    die "Official package transaction failed. Review $transaction_log; no conflicting files were overwritten."
+  fi
+
+  warn "Retrying the official package transaction after preserving unowned conflicts."
+  set +e
+  as_root env LC_ALL=C pacman -Syu --needed --noconfirm "${packages[@]}" \
+    2>&1 | tee -a "$transaction_log"
+  status=${PIPESTATUS[0]}
+  set -e
+  ((status == 0)) \
+    || die "Official package retry failed. Review $transaction_log and the pacman output above."
+}
+
+# AUR helpers cache completed downloads and package builds, so a single retry
+# can recover a transient mirror/AUR failure without repeating successful work.
+install_aur_packages() {
+  local helper=$1 attempt
+  shift
+  local -a packages=("$@")
+
+  for attempt in 1 2; do
+    if "$helper" -S --needed --noconfirm "${packages[@]}"; then
+      return 0
+    fi
+    if ((attempt == 1)); then
+      warn "AUR transaction failed; retrying once using the helper cache."
+    fi
+  done
+  die "AUR package installation failed: ${packages[*]}. Review the first package error above."
+}
 
 # Return the first supported AUR helper already available to the user.
 find_aur_helper() {
@@ -137,7 +228,7 @@ install_packages() {
   # Arch supports only full-system upgrades. Installing against refreshed
   # repositories without upgrading the existing Hyprland/Aquamarine libraries
   # can create an ABI mismatch and an immediate SDDM login loop.
-  ((${#official[@]})) && as_root pacman -Syu --needed --noconfirm "${official[@]}"
+  install_official_packages "${official[@]}"
   if ((${#aur[@]})); then
     local helper=''
     helper=$(find_aur_helper || true)
@@ -145,9 +236,7 @@ install_packages() {
       offer_aur_helper_install || die "AUR packages are required: ${aur[*]}. Install yay or paru, then rerun the installer."
       helper=yay
     fi
-    if ! "$helper" -S --needed --noconfirm "${aur[@]}"; then
-      die "AUR package installation failed: ${aur[*]}. Review the first package error above, then retry."
-    fi
+    install_aur_packages "$helper" "${aur[@]}"
   fi
 }
 

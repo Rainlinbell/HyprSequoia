@@ -27,6 +27,11 @@ git pull --ff-only
 ./install.sh
 ```
 
+The AUR transaction retries once using the helper's download/build cache. A
+second failure stops before configuration deployment and retains the full
+installer log; repeated authentication, package-integrity, or build failures
+still require investigation rather than an unbounded retry loop.
+
 To install the helper manually instead:
 
 ```bash
@@ -35,6 +40,19 @@ git clone https://aur.archlinux.org/yay-bin.git
 cd yay-bin
 makepkg -si
 ```
+
+## Pacman reports "exists in filesystem"
+
+The installer retries an official package transaction once when every reported
+conflict is an unowned, non-directory filesystem entry. It moves each entry to
+`~/.local/state/hyprsequoia/backups/package-conflicts-*` before retrying; it
+never deletes the entry or overwrites a path owned by another package. Owned
+paths, directory conflicts, and malformed paths remain hard failures and must
+be investigated rather than forced with a global overwrite.
+
+The Chinese profile names the four concrete packages in the `fcitx5-im` group
+plus `fcitx5-rime` explicitly, so official repository classification and repair
+remain deterministic.
 
 ## Session returns to SDDM
 

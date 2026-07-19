@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Package profiles and package-management helpers.
 
-readonly -a HS_CORE_PACKAGES=(hyprland sddm waybar kitty walker-bin swaync hyprpaper hyprlock hypridle networkmanager bluez bluez-utils pipewire wireplumber pipewire-pulse xdg-desktop-portal-hyprland xdg-desktop-portal-gtk grim slurp wl-clipboard cliphist gammastep jq brightnessctl playerctl polkit-gnome qt5-wayland qt6-wayland noto-fonts noto-fonts-emoji ttf-jetbrains-mono-nerd bibata-cursor-theme imagemagick pciutils mesa mesa-utils)
+readonly -a HS_CORE_PACKAGES=(hyprland sddm waybar kitty walker-bin swaync hyprpaper hyprlock hypridle networkmanager bluez bluez-utils pipewire wireplumber pipewire-pulse xdg-desktop-portal-hyprland xdg-desktop-portal-gtk grim slurp wl-clipboard cliphist gammastep jq brightnessctl playerctl polkit-gnome qt5-wayland qt6-wayland noto-fonts noto-fonts-emoji ttf-jetbrains-mono-nerd bibata-cursor-theme imagemagick librsvg nwg-dock-hyprland pciutils mesa mesa-utils)
 readonly -a HS_FULL_PACKAGES=(thunar thunar-archive-plugin file-roller pavucontrol network-manager-applet blueman jq)
 # Use concrete packages rather than the fcitx5-im group. `pacman -Si` resolves
 # packages, not groups, and package/AUR classification must remain deterministic.

@@ -16,26 +16,32 @@ if [[ ! -r $source_image ]]; then
     exit 0
 fi
 
-# hyprpaper builds without librsvg cannot decode SVG. The installer includes
-# ImageMagick so the source asset can be converted once into the user cache;
-# if the converter is later removed, the session still starts safely.
+# Hyprpaper does not decode SVG. Prefer librsvg's deterministic converter, then
+# fall back to ImageMagick when its optional SVG delegate is available.
 if [[ $source_image == *.svg ]]; then
     image="$cache_dir/default.png"
-    if [[ ! -r $image || $source_image -nt $image ]]; then
-        converter=''
-        if command -v magick >/dev/null 2>&1; then converter=magick
-        elif command -v convert >/dev/null 2>&1; then converter=convert
-        fi
-        if [[ -n $converter ]]; then
-            if ! "$converter" "$source_image" -background none -resize 2560x1440 "$image" >>"$log" 2>&1; then
-                printf '[HyprSequoia] could not rasterize SVG; skipping wallpaper\n' >>"$log"
-                rm -f -- "$image"
-                exit 0
+    if [[ ! -s $image || $source_image -nt $image ]]; then
+        tmp=$(mktemp "$cache_dir/default.XXXXXX.png")
+        rendered=0
+        if command -v rsvg-convert >/dev/null 2>&1; then
+            if rsvg-convert --width 2560 --height 1440 --output "$tmp" "$source_image" >>"$log" 2>&1; then
+                rendered=1
             fi
-        else
-            printf '[HyprSequoia] ImageMagick not found; skipping SVG wallpaper\n' >>"$log"
+        elif command -v magick >/dev/null 2>&1; then
+            if magick -background none "$source_image" -resize 2560x1440 "$tmp" >>"$log" 2>&1; then
+                rendered=1
+            fi
+        elif command -v convert >/dev/null 2>&1; then
+            if convert -background none "$source_image" -resize 2560x1440 "$tmp" >>"$log" 2>&1; then
+                rendered=1
+            fi
+        fi
+        if ((rendered == 0)) || [[ ! -s $tmp ]]; then
+            printf '[HyprSequoia] could not rasterize SVG; skipping wallpaper\n' >>"$log"
+            rm -f -- "$tmp" "$image"
             exit 0
         fi
+        mv -- "$tmp" "$image"
     fi
 fi
 
@@ -46,6 +52,7 @@ config="$cache_dir/hyprpaper.conf"
 } >"$config"
 
 if command -v hyprpaper >/dev/null 2>&1; then
+    printf '[HyprSequoia] starting hyprpaper with %s\n' "$image" >>"$log"
     exec hyprpaper --config "$config" >>"$log" 2>&1
 fi
 printf '[HyprSequoia] hyprpaper is not installed; leaving compositor background untouched\n' >>"$log"

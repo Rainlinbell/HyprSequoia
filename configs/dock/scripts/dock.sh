@@ -109,10 +109,8 @@ start_backend() {
       return 1
     fi
   fi
-  if [[ $backend == waybar ]]; then
-    "$config_dir/scripts/autohide.sh" "$pid" >>"$log" 2>&1 &
-    printf '%s\n' "$!" >"$DOCK_WATCHER_PID_FILE"
-  fi
+  # Waybar has no pointer-aware dock hotspot. Keep this last-resort backend
+  # visible and clickable; the installed native Hyprland backend owns autohide.
   printf '%s\n' "$backend" >"$DOCK_BACKEND_FILE"
   printf '%s\n' "$pid" >"$DOCK_PID_FILE"
 }

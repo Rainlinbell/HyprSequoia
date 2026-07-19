@@ -198,9 +198,14 @@ waybar -c ~/.config/waybar/config.jsonc -s ~/.config/waybar/style.css
 ```
 
 The wallpaper helper rasterizes the bundled SVG to
-`~/.cache/hyprsequoia/default.png` with ImageMagick before starting hyprpaper.
-If the converter is removed later, the helper logs the problem and leaves the
-compositor running. Reload Hyprland with `hyprctl reload` after config edits.
+`~/.cache/hyprsequoia/default.png` with `rsvg-convert` (ImageMagick is a
+fallback) before starting hyprpaper. The installer includes `librsvg`; failed
+or zero-byte cached images are regenerated. Reload Hyprland with `hyprctl
+reload` after config edits.
+
+The installer includes the official `nwg-dock-hyprland` backend for native
+autohide hotspots and clickable launchers. The Waybar last-resort fallback stays
+visible because it cannot provide a reliable pointer-aware hotspot.
 
 ## Screen sharing fails
 

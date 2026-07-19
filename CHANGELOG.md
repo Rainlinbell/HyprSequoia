@@ -41,6 +41,10 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ### Fixed
 
+- Install the official Hyprland-native Dock by default; make the Waybar fallback
+  visible/clickable instead of polling an unusably narrow autohide hotspot.
+- Install `librsvg`, prefer `rsvg-convert`, reject empty cached wallpaper images,
+  and add explicit wallpaper startup logging before launching hyprpaper.
 - Added VM graphics preflight: Mesa utilities are installed for every profile;
   VMware guests receive `open-vm-tools` services and installation stops before
   SDDM deployment when no DRM render node exists or EGL reports disabled 3D.

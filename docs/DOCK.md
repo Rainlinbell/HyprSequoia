@@ -8,27 +8,27 @@ share the top bar's Waybar process or configuration.
 
 The launcher uses this order:
 
-1. **Rust `nwg-dock`** — the preferred native backend. It provides per-monitor
-   windows and hotplug handling, cursor-tracked auto-hide, running/focused
-   indicators, launch bounce, icon scaling, and drag-to-reorder/remove. Install
-   its GTK4 dependencies and binary when you want the complete macOS-style
-   behavior:
+1. **Rust `nwg-dock`** — the feature-complete optional backend. It provides
+   per-monitor windows and hotplug handling, cursor-tracked auto-hide,
+   running/focused indicators, launch bounce, icon scaling, and
+   drag-to-reorder/remove. Install its GTK4 dependencies and binary when you
+   want the complete macOS-style behavior:
 
    ```bash
    sudo pacman -S --needed gtk4 gtk4-layer-shell rust
    cargo install nwg-dock
    ```
 
-2. **Go `nwg-dock-hyprland`** — an optional lighter native fallback. It provides
-   Hyprland client buttons, pinned apps, focus state, auto-hide hotspots, CSS,
-   and multiple outputs, but does not provide the Rust backend's drag ordering,
-   launch animation, or pointer magnification.
+2. **Go `nwg-dock-hyprland`** — the default installed native backend. It
+   provides Hyprland client buttons, pinned apps, focus state, reliable
+   auto-hide hotspots, CSS, and multiple outputs. It does not provide the Rust
+   backend's drag ordering, launch animation, or pointer magnification.
 
-3. **Waybar `wlr/taskbar`** — the always-available fallback already installed
-   by HyprSequoia. It supplies static launchers, running task buttons, active
-   indicators, a recent-app menu, Trash, hover scaling, and a small pointer-edge
-   watcher for auto-hide. It is intentionally conservative when the native dock
-   backend is unavailable.
+3. **Waybar `wlr/taskbar`** — the last-resort fallback already installed by
+   HyprSequoia. It supplies static launchers, running task buttons, active
+   indicators, a recent-app menu, Trash, and hover scaling. It remains visible
+   and clickable because Waybar cannot provide a reliable pointer-aware Dock
+   hotspot; auto-hide belongs to either native backend.
 
 The Rust backend is a separate upstream Wayland application, not vendored into
 this repository. The wrapper detects it without hardcoding a monitor name or
@@ -65,13 +65,13 @@ shared native pin file at `~/.cache/mac-dock-pinned`.
 
 Favorite launches are stored, newest first, in
 `~/.local/state/hyprsequoia/dock/recent`. The list is bounded and contains only
-the project’s known application IDs; no window titles or document paths are
+the project's known application IDs; no window titles or document paths are
 persisted.
 
 ## Customization
 
-Edit `favorites.list` for the fallback order, then restart the dock. Keep
-personal CSS overrides in a separate file and pass it through a local wrapper so
-updates do not overwrite them. The native config follows the upstream TOML
+Edit `favorites.list` for the fallback order, then restart the Dock. Keep
+personal CSS overrides in a separate file and pass it through a local wrapper
+so updates do not overwrite them. The native config follows the upstream TOML
 schema; CLI flags in `dock.sh` intentionally override only runtime-sensitive
 settings such as auto-hide and the launcher command.

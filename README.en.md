@@ -49,7 +49,6 @@ reboot
 ```bash
 git clone https://github.com/Rainlinbell/HyprSequoia.git
 cd HyprSequoia
-chmod +x install.sh update.sh restore.sh uninstall-kde.sh
 ./install.sh
 ```
 

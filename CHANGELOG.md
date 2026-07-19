@@ -41,6 +41,8 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ### Fixed
 
+- Recorded the top-level lifecycle scripts as executable in Git and removed the
+  conflicting post-clone `chmod` step that made later fast-forward pulls fail.
 - Switched Spotlight's Elephant runtime and targeted providers to their
   prebuilt AUR split packages, avoiding unnecessary Go compilation and
   `proxy.golang.org` failures during a normal desktop installation.

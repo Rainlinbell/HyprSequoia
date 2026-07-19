@@ -11,6 +11,7 @@ source "$ROOT/scripts/lib/packages.sh"
 HS_PROFILE=full HS_CHINESE=0 HS_GPU=auto HS_REMOVE_KDE=0 COMMITTED=0 BACKUP="" DISABLED_LUA=""
 HS_HAS_NVIDIA=0 HS_HAS_AMD=0 HS_HAS_INTEL=0
 HS_SDDM_SESSION="/usr/local/share/wayland-sessions/hyprsequoia.desktop"
+HS_SESSION_LAUNCHER="/usr/local/bin/hyprsequoia-start"
 SDDM_DISPLAY_SERVER=x11 SDDM_DISPLAY_SOURCE="built-in default"
 
 # Restore the backup made by this run after an unexpected failure.
@@ -259,10 +260,13 @@ read_sddm_display_server() {
 # easy for a new user to select a session that immediately exits to SDDM.
 install_sddm_session() {
   local source="$ROOT/configs/sddm/hyprsequoia.desktop"
+  local launcher="$ROOT/scripts/bin/hyprsequoia-start"
   has start-hyprland || die "The installed Hyprland package has no start-hyprland wrapper. Complete a full Arch upgrade, then retry."
   [[ -r $source ]] || die "Missing SDDM session template: $source"
+  [[ -x $launcher ]] || die "Missing session launcher: $launcher"
+  as_root install -Dm755 "$launcher" "$HS_SESSION_LAUNCHER"
   as_root install -Dm644 "$source" "$HS_SDDM_SESSION"
-  info "Installed the standard Hyprland session entry: $HS_SDDM_SESSION"
+  info "Installed the pinned HyprSequoia session entry: $HS_SDDM_SESSION"
 }
 
 # Refuse a known-incompatible login stack and explain non-fatal SDDM choices

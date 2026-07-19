@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=HyprSequoia
-Comment=HyprSequoia desktop session (standard Hyprland startup)
-Exec=start-hyprland
-TryExec=start-hyprland
+Comment=HyprSequoia desktop session
+Exec=/usr/local/bin/hyprsequoia-start
+TryExec=/usr/local/bin/hyprsequoia-start
 Type=Application
 DesktopNames=Hyprland

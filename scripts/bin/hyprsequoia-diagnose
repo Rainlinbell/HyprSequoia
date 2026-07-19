@@ -55,12 +55,33 @@ printf 'HYPRLAND_CONFIG=%s\n' "${HYPRLAND_CONFIG:-<unset>}"
 printf 'AQ_DRM_DEVICES=%s\n' "${AQ_DRM_DEVICES:-<unset>}"
 printf 'AQ_FORCE_LINEAR_BLIT=%s\n' "${AQ_FORCE_LINEAR_BLIT:-<unset>}"
 printf 'GBM_BACKEND=%s\n' "${GBM_BACKEND:-<unset>}"
-config="${HYPRLAND_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprland.conf}"
+config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+if [[ -n ${HYPRLAND_CONFIG:-} ]]; then
+    config=$HYPRLAND_CONFIG
+elif [[ -r "$config_home/hypr/hyprland.lua" ]]; then
+    config="$config_home/hypr/hyprland.lua"
+else
+    config="$config_home/hypr/hyprland.conf"
+fi
 printf 'Resolved config: %s\n' "$config"
+if [[ $config == */hyprland.lua && -r "$config_home/hypr/hyprland.conf" ]]; then
+    printf '%s\n' 'WARNING: hyprland.lua shadows the deployed hyprland.conf during an unpinned startup.'
+fi
 for candidate in "$HOME/.config/hypr/hyprland.conf" "$HOME/.config/hypr/hyprland.lua" \
     "$(dirname -- "$config")/hyprland.conf" "$(dirname -- "$config")/hyprland.lua"; do
     [[ -e $candidate ]] && ls -l -- "$candidate"
 done
+
+printf '\n%s\n' '== HyprSequoia display-manager startup logs =='
+found_startup_log=0
+while IFS= read -r startup_log; do
+    [[ -r $startup_log ]] || continue
+    found_startup_log=1
+    printf -- '--- %s (tail)\n' "$startup_log"
+    tail -n 160 "$startup_log" || true
+done < <(find "$log_dir" -maxdepth 1 -type f -name 'startup-*.log' -printf '%T@ %p\n' 2>/dev/null \
+    | sort -nr | head -n 2 | cut -d' ' -f2-)
+((found_startup_log)) || printf '%s\n' 'No HyprSequoia startup log found.'
 
 printf '\n%s\n' '== GPU and kernel driver =='
 if command -v lspci >/dev/null 2>&1; then

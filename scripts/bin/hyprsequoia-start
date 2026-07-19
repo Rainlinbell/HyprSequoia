@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Stable display-manager entry point for HyprSequoia. Hyprland 0.55 prefers a
+# default hyprland.lua when both config formats exist, so always name the
+# configuration that the installer deployed and verified.
+set -u
+
+export PATH="/usr/local/bin:/usr/bin:/bin:$HOME/.local/bin"
+
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/hyprsequoia"
+log_dir="$state_dir/logs"
+config="$HOME/.config/hypr/hyprland.conf"
+mkdir -p "$log_dir"
+log="$log_dir/startup-$(date +%Y%m%d-%H%M%S).log"
+
+exec >>"$log" 2>&1
+printf '[HyprSequoia] display-manager startup (%s)\n' \
+    "$(date --iso-8601=seconds 2>/dev/null || date)"
+printf '[HyprSequoia] config: %s\n' "$config"
+
+if [[ ! -r $config ]]; then
+    printf '[HyprSequoia] error: config is not readable\n' >&2
+    exit 1
+fi
+if ! command -v start-hyprland >/dev/null 2>&1; then
+    printf '[HyprSequoia] error: start-hyprland is not installed\n' >&2
+    exit 127
+fi
+
+exec start-hyprland -- -c "$config"

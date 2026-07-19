@@ -20,4 +20,8 @@ status_json() {
 }
 
 # Send a desktop notification when notify-send is installed.
-notify() { command -v notify-send >/dev/null 2>&1 && notify-send "$@" || true; }
+notify() {
+  if command -v notify-send >/dev/null 2>&1; then
+    notify-send "$@" || true
+  fi
+}

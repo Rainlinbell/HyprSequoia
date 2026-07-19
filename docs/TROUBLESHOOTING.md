@@ -60,9 +60,12 @@ this wrapper for crash recovery and safe mode. The Arch package's SDDM entry
 normally uses it already.
 
 The installer adds `/usr/local/share/wayland-sessions/hyprsequoia.desktop` so
-SDDM shows a distinct **HyprSequoia** entry that always invokes
-`start-hyprland`. Do not select **Hyprland (uwsm-managed)** unless `uwsm` is
-installed. Inspect the available choices with:
+SDDM shows a distinct **HyprSequoia** entry. Its launcher invokes
+`start-hyprland` with the deployed `hyprland.conf` explicitly, preventing an
+unrelated `hyprland.lua` from shadowing the configuration that the installer
+verified. Startup output is retained as
+`~/.local/state/hyprsequoia/logs/startup-*.log`. Do not select **Hyprland
+(uwsm-managed)** unless `uwsm` is installed. Inspect the available choices with:
 
 ```bash
 grep -R -E '^(Name|Exec|TryExec)=' \
@@ -75,6 +78,16 @@ HyprSequoia targets current Arch Hyprland and uses the 0.53+ `windowrule`,
 config and rolls it back if Hyprland rejects it. It also moves an existing
 `~/.config/hypr/hyprland.lua` aside after backing it up, because Hyprland 0.55
 would otherwise prefer the Lua file and ignore the validated `hyprland.conf`.
+
+If an older installation reports `Using lua config found at
+~/.config/hypr/hyprland.lua`, preserve that file and test the managed config:
+
+```bash
+mv ~/.config/hypr/hyprland.lua ~/.config/hypr/hyprland.lua.disabled
+start-hyprland -- -c ~/.config/hypr/hyprland.conf
+```
+
+After updating, rerun `./install.sh` so SDDM receives the pinned launcher.
 
 ### NVIDIA checklist
 

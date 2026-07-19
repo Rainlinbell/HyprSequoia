@@ -32,7 +32,11 @@ status_json() {
 }
 
 # Notify if a notification daemon is available.
-notify() { command -v notify-send >/dev/null 2>&1 && notify-send "$@" || true; }
+notify() {
+  if command -v notify-send >/dev/null 2>&1; then
+    notify-send "$@" || true
+  fi
+}
 
 # Create private state storage.
 init_state() { umask 077; mkdir -p "$DOCK_STATE_DIR"; }

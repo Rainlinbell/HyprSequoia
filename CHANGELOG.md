@@ -41,6 +41,9 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ### Fixed
 
+- Pinned the SDDM session to the deployed and verified `hyprland.conf`, so a
+  preferred `hyprland.lua` cannot silently shadow it; startup output and actual
+  configuration precedence are now included in diagnostics.
 - Prevented SDDM login loops caused by removed Hyprland configuration keys and
   missing generic monitor rules.
 - Replaced substring-based GPU detection with PCI vendor IDs, installed both

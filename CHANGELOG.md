@@ -41,6 +41,9 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ### Fixed
 
+- Made `update.sh` fetch and fast-forward the resolved remote branch explicitly,
+  report the before/after commit, support checkouts without an upstream, and
+  state clearly that the subsequent installer must finish before deployment.
 - Pinned the SDDM session to the deployed and verified `hyprland.conf`, so a
   preferred `hyprland.lua` cannot silently shadow it; startup output and actual
   configuration precedence are now included in diagnostics.

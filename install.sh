@@ -8,7 +8,7 @@ source "$ROOT/scripts/lib/common.sh"
 # shellcheck source=scripts/lib/packages.sh
 source "$ROOT/scripts/lib/packages.sh"
 
-HS_PROFILE=full HS_CHINESE=0 HS_GPU=auto HS_REMOVE_KDE=0 COMMITTED=0 BACKUP="" DISABLED_LUA=""
+HS_PROFILE=full HS_CHINESE=0 HS_GPU=auto HS_VIRT=none HS_REMOVE_KDE=0 COMMITTED=0 BACKUP="" DISABLED_LUA=""
 HS_HAS_NVIDIA=0 HS_HAS_AMD=0 HS_HAS_INTEL=0
 HS_SDDM_SESSION="/usr/local/share/wayland-sessions/hyprsequoia.desktop"
 HS_SESSION_LAUNCHER="/usr/local/bin/hyprsequoia-start"
@@ -144,6 +144,44 @@ detect_session() {
     info "Wayland session detected."
   else
     info "No active Wayland session detected; installation from a TTY or another desktop is supported."
+  fi
+}
+
+# Identify virtualized graphics before package selection. VMware needs guest
+# integration packages, and all VMs need an accelerated DRM render node for a
+# real Hyprland session.
+detect_virtualization() {
+  local detected=''
+  if has systemd-detect-virt; then
+    detected=$(systemd-detect-virt 2>/dev/null || true)
+  fi
+  if [[ -n $detected && $detected != none ]]; then
+    HS_VIRT=$detected
+  elif has lspci && lspci -Dn 2>/dev/null | grep -qi ' 15ad:'; then
+    HS_VIRT=vmware
+  fi
+  info "Virtualization: $HS_VIRT"
+}
+
+# Refuse to deploy a login entry that can only crash. A render node is the
+# minimum portable VM check; VMware additionally emits an unambiguous EGL
+# diagnostic when the host-side "Accelerate 3D graphics" option is disabled.
+validate_virtual_graphics() {
+  [[ $HS_VIRT != none ]] || return 0
+  local graphics_log
+  graphics_log="$HS_LOG_DIR/graphics-$(date +%Y%m%d-%H%M%S).log"
+
+  if ! compgen -G '/dev/dri/renderD*' >/dev/null; then
+    die "Virtual machine has no DRM render node. Fully power it off, enable 3D acceleration in the hypervisor display settings, boot it, and rerun the installer."
+  fi
+  if [[ $HS_VIRT == vmware && ! -d /sys/module/vmwgfx ]]; then
+    die "VMware graphics driver vmwgfx is not loaded. Enable Accelerate 3D graphics, reboot the guest, and verify: lspci -k"
+  fi
+  if [[ $HS_VIRT == vmware ]] && has eglinfo; then
+    eglinfo -B >"$graphics_log" 2>&1 || true
+    if grep -Fq 'VMware: No 3D enabled' "$graphics_log"; then
+      die "VMware 3D acceleration is disabled. Fully shut down the VM, open VM Settings > Display, enable Accelerate 3D graphics, then boot and rerun the installer. See $graphics_log"
+    fi
   fi
 }
 
@@ -396,12 +434,12 @@ EOF
 }
 
 main() {
-  require_user; require_arch; init_state; choose_profile; detect_session; detect_gpu
+  require_user; require_arch; init_state; choose_profile; detect_session; detect_virtualization; detect_gpu
   exec > >(tee -a "$HS_LOG_DIR/install-$(date +%Y%m%d-%H%M%S).log") 2>&1
   require_managed_config_path
   report_gpu_requirements
   info "Installing $HS_PROFILE profile."
-  install_packages; validate_nvidia_postinstall
+  install_packages; validate_nvidia_postinstall; validate_virtual_graphics
   backup_config; disable_preexisting_lua_config; deploy
   validate_hyprland_config; validate_json_configs
   validate_login_stack; enable_services; enable_display_manager

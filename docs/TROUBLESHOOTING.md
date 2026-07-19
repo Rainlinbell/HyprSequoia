@@ -90,6 +90,25 @@ The report is written to
 driver information, config verification, bounded journal tails, crash reports,
 and the latest runtime log. Review it before sharing it.
 
+### VMware reports "No 3D enabled"
+
+`VMware: No 3D enabled`, `egl: failed to create dri2 screen`, followed by a
+Hyprland crash is a hypervisor graphics failure, not a Hyprland configuration
+error. Fully shut down the guest (do not suspend it), open **VM Settings >
+Hardware > Display**, enable **Accelerate 3D graphics**, then boot the guest.
+The installer includes Mesa, `mesa-utils`, and `open-vm-tools` for VMware and
+enables `vmtoolsd.service` plus `vmware-vmblock-fuse.service`. It refuses to
+deploy the SDDM entry when a VM has no DRM render node or VMware's EGL check
+still reports disabled 3D acceleration.
+
+Verify the guest after changing the host setting:
+
+```bash
+ls -l /dev/dri/renderD*
+lspci -k | sed -n '/VGA compatible controller/,+3p'
+eglinfo -B
+```
+
 ### Verify and start from the TTY
 
 ```bash

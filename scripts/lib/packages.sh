@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Package profiles and package-management helpers.
 
-readonly -a HS_CORE_PACKAGES=(hyprland sddm waybar kitty walker-bin swaync hyprpaper hyprlock hypridle networkmanager bluez bluez-utils pipewire wireplumber pipewire-pulse xdg-desktop-portal-hyprland xdg-desktop-portal-gtk grim slurp wl-clipboard cliphist gammastep jq brightnessctl playerctl polkit-gnome qt5-wayland qt6-wayland noto-fonts noto-fonts-emoji ttf-jetbrains-mono-nerd bibata-cursor-theme imagemagick pciutils)
+readonly -a HS_CORE_PACKAGES=(hyprland sddm waybar kitty walker-bin swaync hyprpaper hyprlock hypridle networkmanager bluez bluez-utils pipewire wireplumber pipewire-pulse xdg-desktop-portal-hyprland xdg-desktop-portal-gtk grim slurp wl-clipboard cliphist gammastep jq brightnessctl playerctl polkit-gnome qt5-wayland qt6-wayland noto-fonts noto-fonts-emoji ttf-jetbrains-mono-nerd bibata-cursor-theme imagemagick pciutils mesa mesa-utils)
 readonly -a HS_FULL_PACKAGES=(thunar thunar-archive-plugin file-roller pavucontrol network-manager-applet blueman jq)
 # Use concrete packages rather than the fcitx5-im group. `pacman -Si` resolves
 # packages, not groups, and package/AUR classification must remain deterministic.
@@ -249,6 +249,7 @@ install_packages() {
   local -a packages=("${HS_CORE_PACKAGES[@]}" "${spotlight_core[@]}" "${spotlight_extra[@]}")
   [[ $HS_PROFILE == full ]] && packages+=("${HS_FULL_PACKAGES[@]}")
   [[ $HS_CHINESE == 1 ]] && packages+=("${HS_CN_PACKAGES[@]}")
+  [[ ${HS_VIRT:-none} == vmware ]] && packages+=(open-vm-tools)
   case $HS_GPU in
     nvidia)
       local nvidia_driver driver_selection
@@ -298,4 +299,8 @@ install_packages() {
 enable_services() {
   as_root systemctl enable --now NetworkManager.service
   as_root systemctl enable --now bluetooth.service
+  if [[ ${HS_VIRT:-none} == vmware ]]; then
+    as_root systemctl enable --now vmtoolsd.service
+    as_root systemctl enable --now vmware-vmblock-fuse.service
+  fi
 }

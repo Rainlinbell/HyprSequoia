@@ -82,6 +82,9 @@ while IFS= read -r startup_log; do
 done < <(find "$log_dir" -maxdepth 1 -type f -name 'startup-*.log' -printf '%T@ %p\n' 2>/dev/null \
     | sort -nr | head -n 2 | cut -d' ' -f2-)
 ((found_startup_log)) || printf '%s\n' 'No HyprSequoia startup log found.'
+if grep -Fq 'VMware: No 3D enabled' "$log_dir"/startup-*.log 2>/dev/null; then
+    printf '%s\n' 'DETECTED: VMware 3D acceleration is disabled; EGL cannot create a DRI screen.'
+fi
 
 printf '\n%s\n' '== GPU and kernel driver =='
 if command -v lspci >/dev/null 2>&1; then

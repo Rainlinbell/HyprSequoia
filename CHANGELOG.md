@@ -41,6 +41,10 @@ All notable changes follow Keep a Changelog and Semantic Versioning.
 
 ### Fixed
 
+- Added VM graphics preflight: Mesa utilities are installed for every profile;
+  VMware guests receive `open-vm-tools` services and installation stops before
+  SDDM deployment when no DRM render node exists or EGL reports disabled 3D.
+- Flag VMware's `No 3D enabled` signature directly in diagnostic reports.
 - Detect and repair zero-byte `/usr/lib/*.so*` files by reinstalling and
   verifying their owning official package; unowned and foreign-package files
   remain warnings rather than unsafe automatic mutations.
